@@ -1,6 +1,10 @@
 name: Update Thai series catalogue
 
 on:
+  push:
+    paths:
+      - '.github/workflows/update-series.yml'
+      - 'scripts/import_series.py'
   schedule:
     # Daily at 18:00 UTC (about 5:00 am Melbourne during daylight saving).
     - cron: "0 18 * * *"
