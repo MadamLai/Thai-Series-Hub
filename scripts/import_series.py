@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import Thai-origin TV series first aired between 2025-01-01 and today from TMDB."""
+"""Import Thai-origin TV series first aired between 2024-01-01 and today from TMDB."""
 
 import json
 import os
@@ -12,7 +12,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 API_BASE = "https://api.themoviedb.org/3/discover/tv"
-START_DATE = os.getenv("START_DATE", "2025-01-01")
+START_DATE = os.getenv("START_DATE", "2024-01-01")
 END_DATE = os.getenv("END_DATE", date.today().isoformat())
 OUTPUT_PATH = Path(os.getenv("OUTPUT_PATH", "data/series.json"))
 MAX_PAGES = 500  # TMDB Discover API page limit
