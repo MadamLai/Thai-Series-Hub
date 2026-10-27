@@ -122,6 +122,11 @@
     .card-original { color:#9c9bad; font-size:10px; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .card-bottom { display:flex; align-items:center; justify-content:space-between; gap:7px; margin-top:12px; padding-top:10px; border-top:1px solid var(--line); color:#a5a4b7; font-size:9px; }
     .card-bottom .open-detail { border:0; padding:0; background:none; color:#ff91b0; font-size:10px; font-weight:850; }
+    .card-watch-actions { display:flex; gap:6px; margin-top:10px; }
+    .card-watch-link { flex:1; min-width:0; display:flex; align-items:center; justify-content:center; text-align:center; text-decoration:none; font-size:9px; font-weight:850; line-height:1.25; padding:7px 4px; border-radius:8px; border:1px solid var(--line); color:#ded6f4; background:#201b2b; }
+    .card-watch-link.watch-primary { color:#ffb1c8; border-color:rgba(251,75,128,.32); background:rgba(251,75,128,.08); }
+    .card-watch-link:hover { border-color:rgba(251,75,128,.55); color:white; }
+    .watch-note { margin-top:10px; color:var(--muted); font-size:10px; line-height:1.6; }
     .empty-state { grid-column:1/-1; text-align:center; padding:65px 20px; border:1px dashed rgba(255,255,255,.15); border-radius:18px; color:var(--muted); }
     .empty-state strong { display:block; color:white; font-size:16px; margin-bottom:8px; }
     .pagination { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px; padding:28px 0 12px; }
@@ -252,6 +257,7 @@
         <div id="heroMeta" class="hero-meta"><span class="meta-item">Loading catalogue…</span></div>
         <div class="hero-buttons">
           <button id="heroExplore" class="btn btn-primary" type="button">Explore catalogue <span aria-hidden="true">→</span></button>
+          <a id="heroWatchLink" class="btn btn-ghost" href="https://www.themoviedb.org/tv" target="_blank" rel="noopener noreferrer">Where to watch ↗</a>
           <a id="heroTmdbLink" class="btn btn-ghost" href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">View on TMDB ↗</a>
         </div>
       </div>
@@ -348,6 +354,28 @@
           try { const url = new URL(candidate); if (url.protocol === 'https:' && url.hostname === 'www.themoviedb.org') return url.href; } catch (_) {}
         }
         return item && item.id ? `https://www.themoviedb.org/tv/${encodeURIComponent(item.id)}` : 'https://www.themoviedb.org/';
+      };
+      const safeWatchOptionsUrl = (item) => {
+        const candidate = item && item.watch_options_url;
+        if (typeof candidate === 'string') {
+          try {
+            const url = new URL(candidate);
+            if (url.protocol === 'https:' && url.hostname === 'www.themoviedb.org' && item.id &&
+                url.pathname.startsWith(`/tv/${encodeURIComponent(item.id)}`) && url.pathname.endsWith('/watch')) return url.href;
+          } catch (_) {}
+        }
+        return item && item.id ? `https://www.themoviedb.org/tv/${encodeURIComponent(item.id)}/watch?locale=AU` : 'https://www.themoviedb.org/tv';
+      };
+      const safeYoutubeSearchUrl = (item) => {
+        const candidate = item && item.youtube_search_url;
+        if (typeof candidate === 'string') {
+          try {
+            const url = new URL(candidate);
+            if (url.protocol === 'https:' && (url.hostname === 'www.youtube.com' || url.hostname === 'youtube.com') && url.pathname === '/results') return url.href;
+          } catch (_) {}
+        }
+        const searchTerms = [titleOf(item), originalOf(item), 'official full episodes'].filter(Boolean).join(' ');
+        return `https://www.youtube.com/results?search_query=${encodeURIComponent(searchTerms)}`;
       };
       const titleOf = (item) => item.name || item.original_name || 'Untitled Thai series';
       const originalOf = (item) => item.original_name && item.original_name !== item.name ? item.original_name : '';
@@ -454,6 +482,7 @@
         const genres = genreNames(featured).slice(0,2);
         el('heroMeta').innerHTML = `<span class="meta-item">▣ ${escapeHtml(yearOf(featured))}</span>${rating !== null ? `<span class="meta-item"><span class="star">★</span> ${rating.toFixed(1)} <span style="color:#8f8da0">/ 10</span></span>` : ''}${genres.map(g => `<span class="meta-item">${escapeHtml(g)}</span>`).join('')}`;
         el('heroTmdbLink').href = safeTmdbUrl(featured);
+        el('heroWatchLink').href = safeWatchOptionsUrl(featured);
         el('heroExplore').onclick = () => { el('catalogue').scrollIntoView({behavior:'smooth'}); el('searchInput').focus({preventScroll:true}); };
         el('heroTitle').setAttribute('data-featured-id', String(featured.id ?? ''));
       }
@@ -514,6 +543,10 @@
           <div class="card-body"><div class="card-title">${escapeHtml(title)}</div>
             ${original ? `<div class="card-original" lang="th" title="${escapeHtml(original)}">${escapeHtml(original)}</div>` : '<div class="card-original">Thai TV series</div>'}
             <div class="card-bottom"><span>${count > 0 ? `${formatNumber(count)} votes` : escapeHtml(date === 'Unknown' ? 'Date unavailable' : date)}</span><button class="open-detail" type="button" data-open-id="${safeId}">Details ↗</button></div>
+            <div class="card-watch-actions">
+              <a class="card-watch-link watch-primary" data-watch-link href="${escapeHtml(safeWatchOptionsUrl(item))}" target="_blank" rel="noopener noreferrer" title="Check Australian streaming options for ${escapeHtml(title)}">Where to watch ↗</a>
+              <a class="card-watch-link" data-watch-link href="${escapeHtml(safeYoutubeSearchUrl(item))}" target="_blank" rel="noopener noreferrer" title="Search YouTube for ${escapeHtml(title)}">YouTube ↗</a>
+            </div>
           </div>
         </article>`;
       }
@@ -578,7 +611,13 @@
             <div class="detail-tags">${genres.map(g=>`<span class="detail-tag">${escapeHtml(g)}</span>`).join('') || '<span class="detail-tag">Genre not listed</span>'}<span class="detail-tag">First aired ${escapeHtml(yearOf(item))}</span></div>
             <div class="detail-stats"><div class="detail-stat"><strong>${rating !== null ? `<span style="color:var(--gold)">★</span> ${rating.toFixed(1)}<small style="color:#8f8da0;font-size:10px"> / 10</small>` : '—'}</strong><span>TMDB rating</span></div><div class="detail-stat"><strong>${formatNumber(votes)}</strong><span>Votes</span></div><div class="detail-stat"><strong>${popularity ? popularity.toFixed(1) : '—'}</strong><span>Popularity</span></div><div class="detail-stat"><strong>${escapeHtml(dateOf(item.first_air_date))}</strong><span>First air date</span></div></div>
             <p class="detail-overview">${escapeHtml(item.overview || 'No overview is available in the current catalogue for this title.')}</p>
-            <div class="modal-actions"><a class="btn btn-primary" href="${escapeHtml(safeTmdbUrl(item))}" target="_blank" rel="noopener noreferrer">Open on TMDB ↗</a><button type="button" class="btn btn-ghost" id="modalBackToCatalogue">Back to catalogue</button></div>
+            <div class="modal-actions">
+              <a class="btn btn-primary" href="${escapeHtml(safeWatchOptionsUrl(item))}" target="_blank" rel="noopener noreferrer">Where to watch (Australia) ↗</a>
+              <a class="btn btn-ghost" href="${escapeHtml(safeYoutubeSearchUrl(item))}" target="_blank" rel="noopener noreferrer">Search YouTube ↗</a>
+              <a class="btn btn-ghost" href="${escapeHtml(safeTmdbUrl(item))}" target="_blank" rel="noopener noreferrer">Open on TMDB ↗</a>
+              <button type="button" class="btn btn-ghost" id="modalBackToCatalogue">Back to catalogue</button>
+            </div>
+            <p class="watch-note">Streaming availability depends on the provider and your region. YouTube opens search results, so check that a result is an official or authorised upload before watching.</p>
           </div>
         </div>`;
         const modal = el('detailModal');
@@ -632,6 +671,8 @@
         el('catalogue').scrollIntoView({behavior:'smooth'});
       });
       el('seriesGrid').addEventListener('click', event => {
+        // Let the explicit watch links navigate instead of bubbling to the clickable card.
+        if (event.target.closest('a[data-watch-link]')) return;
         const opener = event.target.closest('[data-open-id]');
         if (opener) openDetails(detailItem(opener.dataset.openId));
         if (event.target.id === 'emptyReset') resetFilters();
