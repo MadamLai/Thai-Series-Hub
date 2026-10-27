@@ -1,6 +1,6 @@
 {
   "source": "The Movie Database (TMDB)",
-  "generated_at": "2026-10-27T11:51:45+00:00",
+  "generated_at": "2026-10-27T18:35:52+00:00",
   "date_range": {
     "from": "2024-01-01",
     "to": "2026-10-27"
@@ -6821,8 +6821,8 @@
       ],
       "poster_path": "/6syBRgJD9lswfEot3Z8w3NPvDXH.jpg",
       "backdrop_path": "/k5pDjeslUo71OY6daeuSFoe1EOj.jpg",
-      "vote_average": 9.2,
-      "vote_count": 15,
+      "vote_average": 9.25,
+      "vote_count": 16,
       "popularity": 4.5308,
       "tmdb_url": "https://www.themoviedb.org/tv/252887",
       "watch_options_url": "https://www.themoviedb.org/tv/252887/watch?locale=AU",
@@ -9833,8 +9833,8 @@
       ],
       "poster_path": "/sXFgAo1X0HzjkpaTLBmgdtkP2gt.jpg",
       "backdrop_path": "/tVF5NY8s42dQ0QnL91Fw6U1TsnA.jpg",
-      "vote_average": 8.2,
-      "vote_count": 5,
+      "vote_average": 8.5,
+      "vote_count": 6,
       "popularity": 3.4137,
       "tmdb_url": "https://www.themoviedb.org/tv/252648",
       "watch_options_url": "https://www.themoviedb.org/tv/252648/watch?locale=AU",
@@ -16111,28 +16111,6 @@
       "youtube_search_url": "https://www.youtube.com/results?search_query=Built+in+Love+%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%A3%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B9%80%E0%B8%A5%E0%B8%B4%E0%B8%9F+official+full+episodes"
     },
     {
-      "id": 315330,
-      "name": "Love in the Countryside",
-      "original_name": "หอมรักบ้านทุ่ง",
-      "overview": "When the buffalo contest takes an unexpectedly chaotic turn, get ready for the mission to bring 'Homthong,' the champion giant buffalo, back to the care of his mother, 'Homngern.'",
-      "first_air_date": "2026-10-22",
-      "origin_country": [
-        "TH"
-      ],
-      "original_language": "th",
-      "genre_ids": [
-        18
-      ],
-      "poster_path": "/ghhQSYCP9EmyQ3FeEu5dkJRdGML.jpg",
-      "backdrop_path": null,
-      "vote_average": 0.0,
-      "vote_count": 0,
-      "popularity": 1.709,
-      "tmdb_url": "https://www.themoviedb.org/tv/315330",
-      "watch_options_url": "https://www.themoviedb.org/tv/315330/watch?locale=AU",
-      "youtube_search_url": "https://www.youtube.com/results?search_query=Love+in+the+Countryside+%E0%B8%AB%E0%B8%AD%E0%B8%A1%E0%B8%A3%E0%B8%B1%E0%B8%81%E0%B8%9A%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%97%E0%B8%B8%E0%B9%88%E0%B8%87+official+full+episodes"
-    },
-    {
       "id": 307826,
       "name": "Love on Hire",
       "original_name": "รับจ้างเลิกรัก",
@@ -16176,6 +16154,28 @@
       "tmdb_url": "https://www.themoviedb.org/tv/325433",
       "watch_options_url": "https://www.themoviedb.org/tv/325433/watch?locale=AU",
       "youtube_search_url": "https://www.youtube.com/results?search_query=Motherland+%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%9A%E0%B9%81%E0%B8%9C%E0%B9%88%E0%B8%99%E0%B8%94%E0%B8%B4%E0%B8%99+official+full+episodes"
+    },
+    {
+      "id": 315330,
+      "name": "The Cupid Buffalo",
+      "original_name": "หอมรักบ้านทุ่ง",
+      "overview": "When the buffalo contest takes an unexpectedly chaotic turn, get ready for the mission to bring 'Homthong,' the champion giant buffalo, back to the care of his mother, 'Homngern.'",
+      "first_air_date": "2026-10-22",
+      "origin_country": [
+        "TH"
+      ],
+      "original_language": "th",
+      "genre_ids": [
+        18
+      ],
+      "poster_path": "/ghhQSYCP9EmyQ3FeEu5dkJRdGML.jpg",
+      "backdrop_path": null,
+      "vote_average": 0.0,
+      "vote_count": 0,
+      "popularity": 1.709,
+      "tmdb_url": "https://www.themoviedb.org/tv/315330",
+      "watch_options_url": "https://www.themoviedb.org/tv/315330/watch?locale=AU",
+      "youtube_search_url": "https://www.youtube.com/results?search_query=The+Cupid+Buffalo+%E0%B8%AB%E0%B8%AD%E0%B8%A1%E0%B8%A3%E0%B8%B1%E0%B8%81%E0%B8%9A%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%97%E0%B8%B8%E0%B9%88%E0%B8%87+official+full+episodes"
     },
     {
       "id": 315323,
