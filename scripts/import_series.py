@@ -47,10 +47,24 @@ def api_get(params, token, attempts=4):
 
 
 def clean_record(item):
+    series_id = item.get("id")
+    name = (item.get("name") or "").strip()
+    original_name = (item.get("original_name") or "").strip()
+    search_terms = " ".join(
+        part for part in (name, original_name, "official full episodes") if part
+    )
+    watch_options_url = (
+        f"https://www.themoviedb.org/tv/{series_id}/watch?locale=AU"
+        if series_id else ""
+    )
+    youtube_search_url = (
+        f"https://www.youtube.com/results?{urlencode({'search_query': search_terms})}"
+        if search_terms else ""
+    )
     return {
-        "id": item.get("id"),
-        "name": (item.get("name") or "").strip(),
-        "original_name": (item.get("original_name") or "").strip(),
+        "id": series_id,
+        "name": name,
+        "original_name": original_name,
         "overview": (item.get("overview") or "").strip(),
         "first_air_date": item.get("first_air_date") or "",
         "origin_country": item.get("origin_country") or [],
@@ -61,7 +75,9 @@ def clean_record(item):
         "vote_average": item.get("vote_average", 0),
         "vote_count": item.get("vote_count", 0),
         "popularity": item.get("popularity", 0),
-        "tmdb_url": f"https://www.themoviedb.org/tv/{item['id']}" if item.get("id") else "",
+        "tmdb_url": f"https://www.themoviedb.org/tv/{series_id}" if series_id else "",
+        "watch_options_url": watch_options_url,
+        "youtube_search_url": youtube_search_url,
     }
 
 
