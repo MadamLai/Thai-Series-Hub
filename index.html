@@ -1,492 +1,658 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thai Series Hub - Watch Currently Aired Episodes</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            900: '#0f172a',
-                            800: '#1e293b',
-                            700: '#334155',
-                            600: '#475569'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0b13">
+  <meta name="description" content="Discover Thai TV series with posters, synopses, release dates, ratings and links to TMDB.">
+  <title>Thai Series Hub — Discover Thai TV</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0b13;
+      --panel: #13131e;
+      --panel-2: #1a1a28;
+      --line: rgba(255,255,255,.09);
+      --muted: #a1a1b5;
+      --text: #f6f6fb;
+      --rose: #fb4b80;
+      --violet: #a78bfa;
+      --gold: #ffd166;
+      --radius: 20px;
+      --shadow: 0 20px 60px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      background-image: radial-gradient(ellipse at 10% 0%, rgba(122,65,166,.16), transparent 35%), radial-gradient(ellipse at 95% 18%, rgba(251,75,128,.09), transparent 28%);
+    }
+    button, input, select { font: inherit; }
+    button, a, select { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; text-decoration: none; }
+    button { color: inherit; cursor: pointer; }
+    .shell { width: min(1380px, calc(100% - 48px)); margin-inline: auto; }
+    .topbar { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line); background: rgba(11,11,19,.82); backdrop-filter: blur(22px); }
+    .nav { min-height: 76px; display:flex; align-items:center; gap: 26px; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:12px; min-width: 220px; }
+    .brand-mark { display:grid; place-items:center; width:43px; height:43px; border-radius:15px; color:white; background:linear-gradient(135deg,var(--rose),#8b5cf6); box-shadow:0 8px 24px rgba(251,75,128,.25); font-size:21px; }
+    .brand-name { font-weight:850; letter-spacing:-.04em; font-size:18px; line-height:1.1; }
+    .brand-caption { color:var(--muted); font-size:10px; letter-spacing:.16em; text-transform:uppercase; margin-top:5px; }
+    .navlinks { display:flex; align-items:center; gap:25px; color:#bebed0; font-size:13px; font-weight:650; }
+    .navlinks a { transition: color .2s; }
+    .navlinks a:hover, .navlinks a.active { color:white; }
+    .navlinks a.active { position:relative; }
+    .navlinks a.active::after { content:""; position:absolute; left:0; right:0; bottom:-27px; height:2px; background:var(--rose); border-radius:2px; }
+    .nav-actions { display:flex; align-items:center; gap:10px; }
+    .search-wrap { position:relative; width:min(260px, 23vw); }
+    .search-icon { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#85859b; pointer-events:none; font-size:17px; }
+    .search-wrap input { width:100%; padding:11px 14px 11px 39px; border-radius:13px; color:white; background:#171722; border:1px solid var(--line); outline:none; font-size:12px; transition:border-color .2s, box-shadow .2s; }
+    .search-wrap input:focus { border-color:rgba(251,75,128,.65); box-shadow:0 0 0 3px rgba(251,75,128,.1); }
+    .mobile-search { display:none; padding:13px 0 16px; }
+    .hero { position:relative; min-height:425px; margin-top:28px; overflow:hidden; isolation:isolate; border:1px solid var(--line); border-radius:28px; background:linear-gradient(115deg,#21162a,#171725 54%,#252039); box-shadow:var(--shadow); }
+    .hero-bg { position:absolute; z-index:-2; inset:0; width:100%; height:100%; object-fit:cover; opacity:.52; filter:saturate(.82); }
+    .hero::before { content:""; position:absolute; z-index:-1; inset:0; background:linear-gradient(90deg,rgba(11,11,19,.98) 0%,rgba(11,11,19,.88) 35%,rgba(11,11,19,.52) 70%,rgba(11,11,19,.30) 100%),linear-gradient(0deg,rgba(11,11,19,.65),transparent 72%); }
+    .hero-content { width:min(690px, 75%); padding:55px 55px 48px; }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; color:#ff9db9; background:rgba(251,75,128,.12); border:1px solid rgba(251,75,128,.24); padding:7px 11px; border-radius:99px; font-size:10px; font-weight:800; letter-spacing:.15em; text-transform:uppercase; }
+    .eyebrow-dot { width:6px; height:6px; background:var(--rose); border-radius:100%; box-shadow:0 0 12px var(--rose); }
+    .hero h1 { max-width:650px; font-size:clamp(38px,5vw,62px); line-height:1.03; letter-spacing:-.055em; margin:22px 0 16px; font-weight:900; }
+    .hero-subtitle { color:#c5c4d2; max-width:600px; font-size:14px; line-height:1.85; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    .hero-meta { display:flex; align-items:center; flex-wrap:wrap; gap:10px 17px; margin-top:21px; color:#d9d7e4; font-size:12px; }
+    .meta-item { display:inline-flex; align-items:center; gap:6px; }
+    .star { color:var(--gold); }
+    .hero-buttons { display:flex; flex-wrap:wrap; gap:11px; margin-top:28px; }
+    .btn { min-height:42px; display:inline-flex; align-items:center; justify-content:center; gap:9px; padding:0 17px; border-radius:12px; border:1px solid transparent; font-size:12px; font-weight:800; transition:transform .18s, background .18s, border-color .18s; }
+    .btn:hover { transform:translateY(-2px); }
+    .btn-primary { background:var(--rose); color:white; box-shadow:0 8px 25px rgba(251,75,128,.2); }
+    .btn-primary:hover { background:#ff6392; }
+    .btn-ghost { background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.14); color:white; backdrop-filter:blur(9px); }
+    .btn-ghost:hover { background:rgba(255,255,255,.12); }
+    .section { margin-top:52px; }
+    .section-heading { display:flex; align-items:end; justify-content:space-between; gap:18px; margin-bottom:21px; }
+    .section-kicker { color:var(--rose); font-size:10px; letter-spacing:.18em; font-weight:850; text-transform:uppercase; margin-bottom:7px; }
+    h2 { margin:0; font-size:clamp(22px,2.6vw,30px); line-height:1.1; letter-spacing:-.045em; }
+    .section-desc { color:var(--muted); font-size:12px; margin-top:8px; }
+    .text-link { color:#ff8caf; border:0; background:none; padding:7px 0; font-size:12px; font-weight:800; white-space:nowrap; }
+    .text-link:hover { color:#ffc0d2; }
+    .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:13px; margin-top:22px; }
+    .stat { display:flex; align-items:center; gap:14px; background:rgba(21,21,32,.78); border:1px solid var(--line); border-radius:17px; padding:17px 19px; }
+    .stat-icon { width:42px; height:42px; display:grid; place-items:center; border-radius:13px; background:rgba(167,139,250,.12); color:#c3adff; font-size:18px; }
+    .stat:nth-child(2) .stat-icon { background:rgba(251,75,128,.1); color:#ff8caf; }
+    .stat:nth-child(3) .stat-icon { background:rgba(255,209,102,.1); color:var(--gold); }
+    .stat:nth-child(4) .stat-icon { background:rgba(92,210,180,.1); color:#72e4c4; }
+    .stat-number { font-size:23px; line-height:1.1; font-weight:900; letter-spacing:-.04em; }
+    .stat-label { font-size:10px; color:var(--muted); margin-top:5px; }
+    .genre-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:13px; }
+    .genre-card { position:relative; overflow:hidden; text-align:left; min-height:105px; padding:17px; border-radius:17px; border:1px solid var(--line); background:linear-gradient(135deg,#1c1830,#151520); transition:transform .2s,border-color .2s; }
+    .genre-card::after { content:""; position:absolute; right:-23px; top:-32px; width:88px; height:88px; border-radius:50%; background:var(--glow,rgba(251,75,128,.17)); filter:blur(3px); }
+    .genre-card:hover { transform:translateY(-4px); border-color:rgba(251,75,128,.48); }
+    .genre-emoji { font-size:19px; display:block; margin-bottom:13px; }
+    .genre-name { display:block; font-size:12px; font-weight:850; position:relative; z-index:1; }
+    .genre-count { display:block; margin-top:4px; font-size:10px; color:var(--muted); position:relative; z-index:1; }
+    .catalogue-section { margin-top:58px; }
+    .catalogue-toolbar { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:15px; background:var(--panel); border:1px solid var(--line); border-radius:18px; margin-bottom:20px; }
+    .toolbar-left { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+    .filter-select { appearance:none; border:1px solid var(--line); outline:none; background:#1a1a28; color:#e7e6f0; border-radius:11px; padding:10px 33px 10px 12px; min-width:125px; font-size:11px; }
+    .filter-select:focus { border-color:rgba(251,75,128,.65); }
+    .select-wrap { position:relative; }
+    .select-wrap::after { content:"⌄"; color:#8c8ba0; position:absolute; right:12px; top:7px; pointer-events:none; }
+    .result-count { color:var(--muted); font-size:11px; white-space:nowrap; }
+    .result-count strong { color:white; }
+    .view-tabs { display:flex; gap:6px; padding:4px; background:#0e0e17; border:1px solid var(--line); border-radius:12px; }
+    .view-tab { border:0; background:transparent; color:#9d9caf; padding:8px 11px; border-radius:9px; font-size:10px; font-weight:800; }
+    .view-tab.active { background:#2b2134; color:#ffafc7; box-shadow:inset 0 0 0 1px rgba(251,75,128,.15); }
+    .series-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:19px 15px; }
+    .series-card { min-width:0; border-radius:16px; overflow:hidden; border:1px solid var(--line); background:var(--panel); transition:transform .2s,border-color .2s,box-shadow .2s; cursor:pointer; }
+    .series-card:hover { transform:translateY(-5px); border-color:rgba(251,75,128,.45); box-shadow:0 18px 38px rgba(0,0,0,.25); }
+    .poster-wrap { position:relative; aspect-ratio:2/3; background:linear-gradient(135deg,#302139,#191928); overflow:hidden; }
+    .poster { width:100%; height:100%; object-fit:cover; display:block; transition:transform .38s; }
+    .series-card:hover .poster { transform:scale(1.045); }
+    .poster-fallback { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:8px; padding:12px; color:#b8a0ca; text-align:center; background:radial-gradient(circle at 20% 20%,#38223e,#171724 70%); }
+    .poster-fallback .symbol { font-size:33px; }
+    .poster-fallback span:last-child { font-size:11px; font-weight:800; }
+    .poster-shade { position:absolute; inset:40% 0 0; background:linear-gradient(0deg,rgba(10,10,17,.9),transparent); pointer-events:none; }
+    .rating-pill { position:absolute; top:9px; left:9px; display:flex; align-items:center; gap:4px; border:1px solid rgba(255,255,255,.13); border-radius:7px; padding:5px 7px; background:rgba(10,10,17,.82); color:#ffe29a; font-size:10px; font-weight:850; backdrop-filter:blur(6px); }
+    .year-pill { position:absolute; top:9px; right:9px; border-radius:7px; background:rgba(10,10,17,.75); border:1px solid rgba(255,255,255,.12); padding:5px 7px; font-size:9px; color:#efedf6; backdrop-filter:blur(6px); }
+    .poster-bottom { position:absolute; bottom:10px; left:10px; right:10px; display:flex; gap:5px; flex-wrap:wrap; }
+    .mini-tag { font-size:8px; font-weight:800; padding:4px 6px; border:1px solid rgba(255,255,255,.15); background:rgba(16,15,25,.72); color:#f4edf8; border-radius:6px; backdrop-filter:blur(5px); }
+    .card-body { padding:12px 12px 13px; }
+    .card-title { font-size:12px; line-height:1.35; font-weight:850; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:32px; letter-spacing:-.015em; }
+    .card-original { color:#9c9bad; font-size:10px; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card-bottom { display:flex; align-items:center; justify-content:space-between; gap:7px; margin-top:12px; padding-top:10px; border-top:1px solid var(--line); color:#a5a4b7; font-size:9px; }
+    .card-bottom .open-detail { border:0; padding:0; background:none; color:#ff91b0; font-size:10px; font-weight:850; }
+    .empty-state { grid-column:1/-1; text-align:center; padding:65px 20px; border:1px dashed rgba(255,255,255,.15); border-radius:18px; color:var(--muted); }
+    .empty-state strong { display:block; color:white; font-size:16px; margin-bottom:8px; }
+    .pagination { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px; padding:28px 0 12px; }
+    .page-btn { min-width:38px; height:37px; padding:0 12px; border:1px solid var(--line); border-radius:10px; background:#151520; color:#cfcedb; font-size:11px; font-weight:800; }
+    .page-btn:hover:not(:disabled), .page-btn.active { border-color:rgba(251,75,128,.55); background:#2a1c2c; color:#ffacc4; }
+    .page-btn:disabled { opacity:.3; cursor:not-allowed; }
+    .loading-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:15px; }
+    .skeleton { aspect-ratio:2/3; border-radius:15px; background:linear-gradient(100deg,#171722 20%,#232333 40%,#171722 60%); background-size:200% 100%; animation:shine 1.35s infinite; }
+    @keyframes shine { to { background-position-x:-200%; } }
+    .status-message { display:none; margin:20px 0; border-radius:16px; background:rgba(251,75,128,.08); border:1px solid rgba(251,75,128,.22); padding:22px; text-align:center; color:#d5d3e2; font-size:13px; }
+    .status-message.show { display:block; }
+    .status-message strong { display:block; color:white; margin-bottom:5px; }
+    .footer { margin-top:70px; border-top:1px solid var(--line); padding:28px 0 35px; color:#8f8ea3; font-size:10px; }
+    .footer-inner { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .tmdb-note { display:flex; gap:9px; align-items:center; max-width:740px; line-height:1.7; }
+    .tmdb-badge { flex:none; border-radius:5px; background:#01b4e4; color:#08141a; font-weight:950; font-size:9px; letter-spacing:.03em; padding:5px 7px; }
+    .footer-link { color:#bbb9cc; font-weight:750; white-space:nowrap; }
+    .modal { position:fixed; z-index:50; inset:0; display:none; align-items:center; justify-content:center; padding:22px; background:rgba(3,3,9,.78); backdrop-filter:blur(12px); }
+    .modal.open { display:flex; }
+    .modal-panel { width:min(900px,100%); max-height:min(88vh,850px); overflow:auto; position:relative; border-radius:24px; border:1px solid rgba(255,255,255,.13); background:#14141f; box-shadow:0 32px 100px rgba(0,0,0,.55); }
+    .modal-backdrop { display:block; width:100%; height:235px; object-fit:cover; opacity:.7; position:absolute; inset:0 0 auto; }
+    .modal-backdrop-fade { position:absolute; inset:0 0 auto; height:270px; background:linear-gradient(0deg,#14141f,rgba(20,20,31,.25)); pointer-events:none; }
+    .modal-close { position:absolute; z-index:3; right:16px; top:16px; width:39px; height:39px; border-radius:12px; border:1px solid rgba(255,255,255,.16); background:rgba(9,9,15,.7); color:white; font-size:23px; }
+    .modal-content { position:relative; z-index:2; padding:165px 28px 28px; }
+    .detail-layout { display:grid; grid-template-columns:180px 1fr; gap:27px; align-items:start; }
+    .detail-poster { width:100%; aspect-ratio:2/3; object-fit:cover; background:#242435; border-radius:14px; border:1px solid rgba(255,255,255,.12); box-shadow:0 15px 35px rgba(0,0,0,.4); }
+    .detail-title { font-size:clamp(24px,4vw,37px); font-weight:900; line-height:1.08; letter-spacing:-.045em; margin:0 0 6px; }
+    .detail-original { color:#b2b0c2; font-size:12px; margin-bottom:14px; }
+    .detail-tags { display:flex; flex-wrap:wrap; gap:6px; margin:13px 0 17px; }
+    .detail-tag { padding:5px 8px; border-radius:7px; color:#d9c9ff; background:rgba(167,139,250,.11); border:1px solid rgba(167,139,250,.18); font-size:9px; font-weight:800; }
+    .detail-overview { white-space:pre-line; color:#cfcedd; font-size:13px; line-height:1.8; }
+    .detail-stats { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0; }
+    .detail-stat { flex:1; min-width:105px; border:1px solid var(--line); border-radius:12px; padding:11px 12px; background:#1a1a28; }
+    .detail-stat strong { display:block; font-size:17px; }
+    .detail-stat span { color:var(--muted); font-size:9px; }
+    .modal-actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    @media (max-width:1120px) {
+      .series-grid,.loading-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+      .genre-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .navlinks { gap:16px; }
+      .brand { min-width:185px; }
+    }
+    @media (max-width:760px) {
+      .shell { width:min(100% - 30px, 600px); }
+      .nav { min-height:67px; gap:12px; }
+      .brand { min-width:auto; }
+      .brand-mark { width:38px; height:38px; border-radius:13px; }
+      .brand-name { font-size:16px; }
+      .brand-caption { font-size:8px; }
+      .navlinks { display:none; }
+      .search-wrap { width:40px; }
+      .search-wrap input { padding:11px 10px 11px 34px; width:40px; color:transparent; cursor:pointer; }
+      .search-wrap input:focus { position:absolute; right:0; top:0; width:min(72vw,300px); color:white; background:#171722; cursor:text; }
+      .search-icon { left:11px; }
+      .mobile-search { display:block; }
+      .mobile-search .search-wrap { width:100%; }
+      .mobile-search .search-wrap input { width:100%; color:white; cursor:text; }
+      .hero { min-height:420px; margin-top:17px; border-radius:22px; }
+      .hero::before { background:linear-gradient(90deg,rgba(11,11,19,.94),rgba(11,11,19,.65)),linear-gradient(0deg,rgba(11,11,19,.72),transparent); }
+      .hero-content { padding:32px 23px; width:100%; }
+      .hero h1 { font-size:42px; }
+      .hero-subtitle { font-size:12px; }
+      .stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+      .stat { padding:12px; gap:10px; }
+      .stat-icon { width:36px; height:36px; }
+      .stat-number { font-size:20px; }
+      .section { margin-top:38px; }
+      .genre-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+      .genre-card { min-height:100px; padding:12px; }
+      .catalogue-toolbar { align-items:stretch; flex-direction:column; padding:12px; }
+      .toolbar-left { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .filter-select { width:100%; min-width:0; }
+      .view-tabs { width:100%; }
+      .view-tab { flex:1; }
+      .result-count { text-align:right; }
+      .series-grid,.loading-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px 10px; }
+      .card-body { padding:10px; }
+      .card-title { font-size:11px; }
+      .card-original { font-size:9px; }
+      .footer-inner { flex-direction:column; align-items:flex-start; }
+      .modal { padding:10px; }
+      .modal-panel { max-height:94vh; border-radius:18px; }
+      .modal-content { padding:135px 16px 20px; }
+      .modal-backdrop { height:195px; }
+      .modal-backdrop-fade { height:230px; }
+      .detail-layout { grid-template-columns:100px 1fr; gap:14px; }
+      .detail-title { font-size:23px; }
+      .detail-overview { font-size:12px; }
+    }
+    @media (max-width:380px) {
+      .brand-caption { display:none; }
+      .genre-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .hero h1 { font-size:35px; }
+      .detail-layout { grid-template-columns:1fr; }
+      .detail-poster { width:112px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+  </style>
 </head>
-<body class="bg-dark-900 text-slate-100 font-sans min-h-screen selection:bg-rose-500 selection:text-white">
+<body>
+  <header class="topbar">
+    <div class="shell nav">
+      <a class="brand" href="#home" aria-label="Thai Series Hub home">
+        <div class="brand-mark" aria-hidden="true">▶</div>
+        <div><div class="brand-name">Thai Series Hub</div><div class="brand-caption">Your Thai TV discovery guide</div></div>
+      </a>
+      <nav class="navlinks" aria-label="Main navigation">
+        <a class="active" href="#home">Home</a>
+        <a href="#genres">Genres</a>
+        <a href="#catalogue">Explore series</a>
+        <a href="#about">About</a>
+      </nav>
+      <div class="nav-actions">
+        <label class="search-wrap" aria-label="Search series"><span class="search-icon" aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Search Thai series…" autocomplete="off"></label>
+      </div>
+    </div>
+    <div class="shell mobile-search"><label class="search-wrap" aria-label="Search series"><span class="search-icon" aria-hidden="true">⌕</span><input id="mobileSearchInput" type="search" placeholder="Search titles, Thai names, genres…" autocomplete="off"></label></div>
+  </header>
 
-    <!-- Top Navigation Bar -->
-    <header class="sticky top-0 z-50 bg-dark-900/90 backdrop-blur-md border-b border-dark-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
-                <div class="bg-gradient-to-tr from-rose-500 to-purple-600 p-2 rounded-xl text-white shadow-lg shadow-rose-500/20">
-                    <i data-lucide="tv" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Thai Series Hub</span>
-                    <p class="text-xs text-slate-400 hidden sm:block">Watch currently aired episodes & YouTube sources</p>
-                </div>
-            </div>
-            
-            <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
-                <a href="#" onclick="switchTab('home')" id="nav-home" class="text-rose-400 hover:text-rose-300 transition flex items-center space-x-1.5"><i data-lucide="home" class="w-4 h-4"></i><span>Home</span></a>
-                <a href="#" onclick="switchTab('onair')" id="nav-onair" class="text-slate-300 hover:text-white transition flex items-center space-x-1.5"><i data-lucide="radio" class="w-4 h-4"></i><span>Airing Today</span></a>
-                <a href="#" onclick="switchTab('upcoming')" id="nav-upcoming" class="text-slate-300 hover:text-white transition flex items-center space-x-1.5"><i data-lucide="calendar" class="w-4 h-4"></i><span>Upcoming</span></a>
-                <a href="#" onclick="switchTab('directory')" id="nav-directory" class="text-slate-300 hover:text-white transition flex items-center space-x-1.5"><i data-lucide="film" class="w-4 h-4"></i><span>Series Directory</span></a>
-            </nav>
-
-            <div class="flex items-center space-x-3">
-                <div class="relative hidden sm:block">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="search" class="w-4 h-4"></i>
-                    </span>
-                    <input type="text" id="searchInput" oninput="handleSearch(this.value)" placeholder="Search series, genres..." class="bg-dark-800 text-sm text-slate-200 placeholder-slate-400 pl-9 pr-4 py-2 rounded-full border border-dark-700 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 w-48 lg:w-64 transition">
-                </div>
-            </div>
+  <main id="home" class="shell">
+    <section class="hero" aria-label="Featured Thai series">
+      <img id="heroImage" class="hero-bg" alt="" aria-hidden="true">
+      <div class="hero-content">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Explore Thai television</div>
+        <h1 id="heroTitle">Stories worth falling into.</h1>
+        <p id="heroOverview" class="hero-subtitle">Discover Thai dramas, comedies, romances and more, all in one place.</p>
+        <div id="heroMeta" class="hero-meta"><span class="meta-item">Loading catalogue…</span></div>
+        <div class="hero-buttons">
+          <button id="heroExplore" class="btn btn-primary" type="button">Explore catalogue <span aria-hidden="true">→</span></button>
+          <a id="heroTmdbLink" class="btn btn-ghost" href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">View on TMDB ↗</a>
         </div>
-    </header>
+      </div>
+    </section>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section class="stats" aria-label="Catalogue statistics">
+      <div class="stat"><div class="stat-icon" aria-hidden="true">▤</div><div><div class="stat-number" id="statTotal">—</div><div class="stat-label">Series in catalogue</div></div></div>
+      <div class="stat"><div class="stat-icon" aria-hidden="true">◷</div><div><div class="stat-number" id="statYears">—</div><div class="stat-label">Years covered</div></div></div>
+      <div class="stat"><div class="stat-icon" aria-hidden="true">★</div><div><div class="stat-number" id="statRated">—</div><div class="stat-label">Community-rated titles</div></div></div>
+      <div class="stat"><div class="stat-icon" aria-hidden="true">⌁</div><div><div class="stat-number" id="statGenres">—</div><div class="stat-label">Genre categories</div></div></div>
+    </section>
 
-        <!-- TAB CONTENT: HOME -->
-        <div id="tab-home" class="space-y-12">
-            <!-- Hero Featured Banner -->
-            <div class="relative rounded-2xl overflow-hidden bg-gradient-to-r from-dark-800 to-slate-900 border border-dark-700 shadow-2xl">
-                <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmk2rf6el005b3e0rh2l5x2pl/2026/10/drama__3df5ddf1-f4c6-4267-8e64-b6407300c592.webp');"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/60 to-transparent"></div>
-                
-                <div class="relative z-10 p-6 sm:p-10 lg:p-12 max-w-2xl space-y-4">
-                    <div class="flex items-center space-x-2">
-                        <span class="bg-rose-500 text-white text-xs font-bold uppercase px-2.5 py-1 rounded-md tracking-wider">Airing Now (EP 01 - EP 04)</span>
-                        <span class="bg-dark-700/80 backdrop-blur text-slate-300 text-xs px-2.5 py-1 rounded-md border border-dark-600">Comedy · BL</span>
-                    </div>
-                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white drop-shadow-md">Good Boy Series</h1>
-                    <p class="text-slate-300 text-sm sm:text-base line-clamp-2">A high-energy romantic comedy following university life, hilarious misunderstandings, and heartwarming romance on GMM25.</p>
-                    <div class="flex flex-wrap items-center gap-3 pt-2">
-                        <div class="flex items-center space-x-1.5 text-xs text-slate-300 bg-dark-800/90 px-3 py-1.5 rounded-lg border border-dark-700">
-                            <i data-lucide="tv" class="w-4 h-4 text-rose-400"></i>
-                            <span>GMM25</span>
-                        </div>
-                        <div class="flex items-center space-x-1.5 text-xs text-slate-300 bg-dark-800/90 px-3 py-1.5 rounded-lg border border-dark-700">
-                            <i data-lucide="clock" class="w-4 h-4 text-rose-400"></i>
-                            <span>Airs Sun · 20:30 ICT</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4 pt-4">
-                        <button onclick="openSeriesDetail(1)" class="bg-rose-600 hover:bg-rose-500 text-white font-medium px-6 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-lg shadow-rose-600/30">
-                            <i data-lucide="play" class="w-4 h-4 fill-current"></i>
-                            <span>Watch Episodes</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <section class="section" id="genres">
+      <div class="section-heading">
+        <div><div class="section-kicker">Find your next favourite</div><h2>Browse by genre</h2><p class="section-desc">Pick a mood and explore Thai series that fit.</p></div>
+        <button class="text-link" id="allGenresLink" type="button">View all series ↗</button>
+      </div>
+      <div id="genreGrid" class="genre-grid"><div class="genre-card">Loading genres…</div></div>
+    </section>
 
-            <!-- Browse by Genre -->
-            <section class="space-y-4">
-                <h2 class="text-xl font-bold tracking-tight text-white flex items-center space-x-2">
-                    <i data-lucide="compass" class="w-5 h-5 text-rose-500"></i>
-                    <span>Browse by Genre</span>
-                </h2>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-                    <div onclick="filterByGenre('Romance')" class="group relative rounded-xl overflow-hidden cursor-pointer h-28 bg-gradient-to-br from-rose-900/40 to-pink-900/60 border border-dark-700 p-4 flex flex-col justify-end hover:border-rose-500/50 transition shadow-md">
-                        <span class="font-bold text-white group-hover:text-rose-400 transition">Romance</span>
-                        <span class="text-xs text-slate-400">Explore love stories</span>
-                    </div>
-                    <div onclick="filterByGenre('Comedy')" class="group relative rounded-xl overflow-hidden cursor-pointer h-28 bg-gradient-to-br from-amber-900/40 to-yellow-900/60 border border-dark-700 p-4 flex flex-col justify-end hover:border-amber-500/50 transition shadow-md">
-                        <span class="font-bold text-white group-hover:text-amber-400 transition">Comedy</span>
-                        <span class="text-xs text-slate-400">Laugh out loud</span>
-                    </div>
-                    <div onclick="filterByGenre('LGBTQ+')" class="group relative rounded-xl overflow-hidden cursor-pointer h-28 bg-gradient-to-br from-purple-900/40 to-indigo-900/60 border border-dark-700 p-4 flex flex-col justify-end hover:border-purple-500/50 transition shadow-md">
-                        <span class="font-bold text-white group-hover:text-purple-400 transition">BL / GL</span>
-                        <span class="text-xs text-slate-400">Boys' & Girls' Love</span>
-                    </div>
-                    <div onclick="filterByGenre('Action')" class="group relative rounded-xl overflow-hidden cursor-pointer h-28 bg-gradient-to-br from-blue-900/40 to-cyan-900/60 border border-dark-700 p-4 flex flex-col justify-end hover:border-blue-500/50 transition shadow-md">
-                        <span class="font-bold text-white group-hover:text-blue-400 transition">Action</span>
-                        <span class="text-xs text-slate-400">Thrills & stunts</span>
-                    </div>
-                    <div onclick="filterByGenre('Drama')" class="group relative rounded-xl overflow-hidden cursor-pointer h-28 bg-gradient-to-br from-emerald-900/40 to-teal-900/60 border border-dark-700 p-4 flex flex-col justify-end hover:border-emerald-500/50 transition shadow-md">
-                        <span class="font-bold text-white group-hover:text-emerald-400 transition">Drama</span>
-                        <span class="text-xs text-slate-400">Emotional depth</span>
-                    </div>
-                    <div onclick="filterByGenre('Period')" class="group relative rounded-xl overflow-hidden cursor-pointer h-28 bg-gradient-to-br from-orange-900/40 to-red-900/60 border border-dark-700 p-4 flex flex-col justify-end hover:border-orange-500/50 transition shadow-md">
-                        <span class="font-bold text-white group-hover:text-orange-400 transition">Period</span>
-                        <span class="text-xs text-slate-400">Historical epics</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Airing Today Section -->
-            <section class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-bold tracking-tight text-white flex items-center space-x-2">
-                        <i data-lucide="radio" class="w-5 h-5 text-rose-500"></i>
-                        <span>On-Air Series (Currently Broadcasted Episodes)</span>
-                    </h2>
-                    <button onclick="switchTab('onair')" class="text-xs text-rose-400 hover:text-rose-300 font-medium">See All &rarr;</button>
-                </div>
-                <div id="home-onair-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <!-- Populated dynamically -->
-                </div>
-            </section>
-
-            <!-- Upcoming Section -->
-            <section class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-bold tracking-tight text-white flex items-center space-x-2">
-                        <i data-lucide="calendar" class="w-5 h-5 text-purple-500"></i>
-                        <span>Upcoming Thai Series</span>
-                    </h2>
-                    <button onclick="switchTab('upcoming')" class="text-xs text-purple-400 hover:text-purple-300 font-medium">See All &rarr;</button>
-                </div>
-                <div id="home-upcoming-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <!-- Populated dynamically -->
-                </div>
-            </section>
+    <section class="catalogue-section" id="catalogue">
+      <div class="section-heading">
+        <div><div class="section-kicker">Powered by your live JSON catalogue</div><h2 id="catalogueTitle">Explore the catalogue</h2><p class="section-desc" id="catalogueSubtitle">Posters, original titles, release dates, ratings and synopses.</p></div>
+        <button class="text-link" id="resetFilters" type="button">Reset filters ↺</button>
+      </div>
+      <div class="catalogue-toolbar">
+        <div class="toolbar-left">
+          <div class="select-wrap"><label class="sr-only" for="genreFilter">Filter by genre</label><select id="genreFilter" class="filter-select"><option value="all">All genres</option></select></div>
+          <div class="select-wrap"><label class="sr-only" for="yearFilter">Filter by year</label><select id="yearFilter" class="filter-select"><option value="all">All years</option></select></div>
+          <div class="select-wrap"><label class="sr-only" for="sortSelect">Sort series</label><select id="sortSelect" class="filter-select"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="rating">Top rated</option><option value="popularity">Most popular</option><option value="title">Title A–Z</option></select></div>
         </div>
-
-        <!-- TAB CONTENT: ON AIR -->
-        <div id="tab-onair" class="space-y-6 hidden">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-dark-700 pb-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-white">Airing Today & On-Air Schedule</h1>
-                    <p class="text-sm text-slate-400">Select any series to view currently released episodes up to this week.</p>
-                </div>
-            </div>
-            <div id="onair-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Populated dynamically -->
-            </div>
+        <div class="view-tabs" role="group" aria-label="Catalogue view">
+          <button class="view-tab active" data-view="all" type="button">All series</button>
+          <button class="view-tab" data-view="rated" type="button">Top rated</button>
+          <button class="view-tab" data-view="recent" type="button">Latest</button>
         </div>
+      </div>
+      <div class="result-count" id="resultCount" aria-live="polite">Loading catalogue…</div>
+      <div id="loadError" class="status-message" role="alert"><strong>Catalogue could not be loaded.</strong><span id="loadErrorText">Please check the data file path.</span><br><button class="btn btn-ghost" id="retryLoad" type="button" style="margin-top:13px">Try again</button></div>
+      <div id="loadingGrid" class="loading-grid" aria-label="Loading series"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+      <div id="seriesGrid" class="series-grid" aria-live="polite"></div>
+      <div id="pagination" class="pagination" aria-label="Catalogue pagination"></div>
+    </section>
+  </main>
 
-        <!-- TAB CONTENT: UPCOMING -->
-        <div id="tab-upcoming" class="space-y-6 hidden">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-dark-700 pb-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-white">Upcoming Thai Series</h1>
-                    <p class="text-sm text-slate-400">Anticipated upcoming releases and pre-production announcements.</p>
-                </div>
-            </div>
-            <div id="upcoming-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Populated dynamically -->
-            </div>
-        </div>
+  <footer class="footer" id="about">
+    <div class="shell footer-inner">
+      <div class="tmdb-note"><span class="tmdb-badge">TMDB</span><span>This product uses the TMDB API but is not endorsed or certified by TMDB. Series metadata and ratings are loaded from the Thai Series Hub catalogue generated from The Movie Database.</span></div>
+      <a class="footer-link" href="https://github.com/MadamLai/Thai-Series-Hub/blob/main/data/series.json" target="_blank" rel="noopener noreferrer">Open data source ↗</a>
+    </div>
+  </footer>
 
-        <!-- TAB CONTENT: DIRECTORY -->
-        <div id="tab-directory" class="space-y-6 hidden">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-dark-700 pb-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-white">Series Directory</h1>
-                    <p class="text-sm text-slate-400">Comprehensive database showing only active aired episodes.</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <select id="statusFilter" onchange="filterDirectory()" class="bg-dark-800 text-sm text-slate-200 border border-dark-700 px-3 py-2 rounded-xl focus:outline-none focus:border-rose-500">
-                        <option value="ALL">All Statuses</option>
-                        <option value="Confirmed">Confirmed (On-Air)</option>
-                        <option value="Upcoming">Upcoming</option>
-                        <option value="Completed">Completed</option>
-                    </select>
-                </div>
-            </div>
-            <div id="directory-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Populated dynamically -->
-            </div>
-        </div>
+  <div id="detailModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle" aria-hidden="true">
+    <div class="modal-panel">
+      <button id="modalClose" class="modal-close" type="button" aria-label="Close details">×</button>
+      <img id="detailBackdrop" class="modal-backdrop" alt="" aria-hidden="true">
+      <div class="modal-backdrop-fade"></div>
+      <div id="modalContent" class="modal-content"></div>
+    </div>
+  </div>
 
-        <!-- TAB CONTENT: SERIES DETAIL / WATCH PAGE -->
-        <div id="tab-watch" class="space-y-8 hidden">
-            <!-- Back button -->
-            <button onclick="goBackFromWatch()" class="text-slate-400 hover:text-white transition flex items-center space-x-2 text-sm font-medium">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                <span>Back</span>
-            </button>
+  <script>
+    (() => {
+      'use strict';
+      const LOCAL_DATA_URL = './data/series.json';
+      const REMOTE_DATA_URL = 'https://raw.githubusercontent.com/MadamLai/Thai-Series-Hub/main/data/series.json';
+      const POSTER_BASE = 'https://image.tmdb.org/t/p/w500';
+      const BACKDROP_BASE = 'https://image.tmdb.org/t/p/w1280';
+      const PAGE_SIZE = 24;
+      const GENRES = {
+        10759: 'Action & Adventure', 16: 'Animation', 35: 'Comedy', 80: 'Crime',
+        99: 'Documentary', 18: 'Drama', 10751: 'Family', 10762: 'Kids',
+        9648: 'Mystery', 10763: 'News', 10764: 'Reality', 10765: 'Sci-Fi & Fantasy',
+        10766: 'Soap', 10767: 'Talk', 10768: 'War & Politics', 37: 'Western'
+      };
+      const GENRE_EMOJI = {
+        10759: '⚔️', 16: '🎨', 35: '☀️', 80: '🕵️', 99: '🎥', 18: '🎭',
+        10751: '💛', 10762: '🧸', 9648: '🔎', 10763: '🗞️', 10764: '🎤',
+        10765: '✨', 10766: '💞', 10767: '🎙️', 10768: '🛡️', 37: '🌵'
+      };
+      const GENRE_GLOW = ['rgba(251,75,128,.20)','rgba(167,139,250,.2)','rgba(255,209,102,.17)','rgba(92,210,180,.16)','rgba(102,174,255,.18)','rgba(255,143,94,.16)'];
+      let seriesData = [];
+      let currentPage = 1;
+      let currentView = 'all';
+      let latestGeneratedAt = '';
+      let previousFocus = null;
 
-            <!-- Series Hero Banner / Info -->
-            <div class="bg-dark-800 border border-dark-700 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row gap-8 shadow-2xl">
-                <div class="w-full md:w-64 lg:w-72 shrink-0 rounded-2xl overflow-hidden bg-dark-900 border border-dark-700 shadow-lg h-80 md:h-96">
-                    <img id="detail-poster" src="" alt="" class="w-full h-full object-cover">
-                </div>
-                <div class="flex-1 space-y-4">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span id="detail-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full border bg-rose-500/20 text-rose-400 border-rose-500/30">Confirmed</span>
-                        <span id="detail-channel-badge" class="text-xs font-medium px-3 py-1 rounded-md bg-dark-700 text-slate-200">Channel 7HD</span>
-                    </div>
-                    <h1 id="detail-title" class="text-2xl sm:text-4xl font-extrabold text-white">Series Title</h1>
-                    <p id="detail-alt-title" class="text-sm text-slate-400 italic">Alternative Title</p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-300 py-2 border-y border-dark-700">
-                        <div><span class="text-slate-500">Genre:</span> <span id="detail-genre" class="text-slate-200 font-medium"></span></div>
-                        <div><span class="text-slate-500">Premiere Date:</span> <span id="detail-premiere" class="text-slate-200 font-medium"></span></div>
-                        <div><span class="text-slate-500">Airing Schedule:</span> <span id="detail-schedule" class="text-slate-200 font-medium"></span></div>
-                        <div><span class="text-slate-500">Aired Episodes:</span> <span id="detail-aired-count" class="text-rose-400 font-bold"></span></div>
-                    </div>
-
-                    <p id="detail-notes" class="text-sm text-slate-300 leading-relaxed"></p>
-                </div>
-            </div>
-
-            <!-- EPISODE & STREAMING SERVER SELECTOR -->
-            <div class="bg-dark-800 border border-dark-700 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-dark-700 pb-4">
-                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
-                        <i data-lucide="play-circle" class="w-6 h-6 text-rose-500"></i>
-                        <span>Select Episode & YouTube Source Line</span>
-                    </h2>
-                    <span class="text-xs text-slate-400" id="ep-status-notice">Showing currently released episodes only</span>
-                </div>
-
-                <!-- Server Source Selector Tabs -->
-                <div class="flex flex-wrap items-center gap-2" id="server-tabs">
-                    <!-- Populated dynamically JS -->
-                </div>
-
-                <!-- Episode Grid for Selected Server -->
-                <div id="episode-grid-container" class="space-y-3 pt-2">
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Aired Episodes (Available Now):</p>
-                    <div id="episode-buttons-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                        <!-- Populated dynamically JS -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-dark-800 border-t border-dark-700 mt-20 py-8 text-center text-xs text-slate-400">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p>&copy; 2026 Thai Series Hub. Real-time YouTube episode search integration.</p>
-            <div class="flex space-x-6">
-                <a href="#" class="hover:text-white transition">Privacy Policy</a>
-                <a href="#" class="hover:text-white transition">Terms of Service</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- JavaScript Data & Logic -->
-    <script>
-        const seriesData = [{"Series Title": "Kaew Phitsadan", "Alternative Title": "\u0e41\u0e01\u0e49\u0e27\u0e1e\u0e34\u0e28\u0e14\u0e32\u0e23", "Genre": "Folklore, Fantasy", "Channel / Platform": "Channel 7HD", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-06-01", "Airing Day": "Sunday", "Thai Air Time (24h)": "08:00", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmp114b5m0an6pd0k1ccq7evw", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmp114b5m0an6pd0k1ccq7evw/2026/06/drama__da6ad248-7d10-4957-a12d-1fefda70bb50.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Sundays at 08:00 ICT on Channel 7HD.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Channel 7HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Kaew+Phitsadan+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Kaew+Phitsadan+EP+12+ENG+SUB"}]}]}, {"Series Title": "Good Boy Series", "Alternative Title": "\u0e01\u0e39\u0e4a\u0e14\u0e1a\u0e2d\u0e22 \u0e0b\u0e35\u0e23\u0e35\u0e2a\u0e4c", "Genre": "Comedy, LGBTQ+, Boys' Love (BL)", "Channel / Platform": "GMM25", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-10-01", "Airing Day": "Sunday", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmk2rf6el005b3e0rh2l5x2pl", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmk2rf6el005b3e0rh2l5x2pl/2026/10/drama__3df5ddf1-f4c6-4267-8e64-b6407300c592.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Sundays at 20:30 ICT on GMM25.", "aired_episodes_count": 4, "sources": [{"sourceName": "YouTube (GMM25 Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=GMM25+Good+Boy+Series+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=GMM25+Good+Boy+Series+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=GMM25+Good+Boy+Series+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=GMM25+Good+Boy+Series+EP+4"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Good+Boy+Series+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Good+Boy+Series+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Good+Boy+Series+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Good+Boy+Series+EP+4+ENG+SUB"}]}]}, {"Series Title": "Decoding You (Khot Rak)", "Alternative Title": "\u0e42\u0e04\u0e15\u0e23\u0e23\u0e31\u0e01", "Genre": "Melodrama, Drama, LGBTQ+", "Channel / Platform": "Channel 3HD", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-10-01", "Airing Day": "Sunday", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmo4qkgwd01lkpd0k0tgai1mc", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmo4qkgwd01lkpd0k0tgai1mc/2026/10/drama__cc1067df-c0bc-472b-8a25-593ca5a65152.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Sundays from 20:30 to 21:45 ICT on Channel 3HD.", "aired_episodes_count": 4, "sources": [{"sourceName": "YouTube (Channel 3HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Decoding+You+%28Khot+Rak%29+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Decoding+You+%28Khot+Rak%29+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Decoding+You+%28Khot+Rak%29+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Decoding+You+%28Khot+Rak%29+EP+4"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Decoding+You+%28Khot+Rak%29+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Decoding+You+%28Khot+Rak%29+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Decoding+You+%28Khot+Rak%29+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Decoding+You+%28Khot+Rak%29+EP+4+ENG+SUB"}]}]}, {"Series Title": "Hom Rak Ban Thung (The Cupid Buffalo)", "Alternative Title": "\u0e2b\u0e2d\u0e21\u0e23\u0e31\u0e01\u0e1a\u0e49\u0e32\u0e19\u0e17\u0e38\u0e48\u0e07", "Genre": "Comedy, Romantic", "Channel / Platform": "One 31", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-02-01", "Airing Day": "Monday", "Thai Air Time (24h)": "19:00", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmm3nols900w7o00kgst8w1zx", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmm3nols900w7o00kgst8w1zx/2026/02/drama__3fe924fa-d471-4122-96b6-b5e29aaa1852.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Mondays from 19:00 to 19:55 ICT on One 31.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (One 31 Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=One+31+Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Hom+Rak+Ban+Thung+%28The+Cupid+Buffalo%29+EP+12+ENG+SUB"}]}]}, {"Series Title": "The Soulmate Rings", "Alternative Title": "\u0e41\u0e2b\u0e27\u0e19\u0e04\u0e39\u0e48\u0e23\u0e31\u0e01", "Genre": "Period, Action, Comedy", "Channel / Platform": "Channel 7HD", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-09-01", "Airing Day": "Monday, Tuesday", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmiie02ca00107b0q09xi54hh", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmiie02ca00107b0q09xi54hh/2026/09/drama__bf1622de-c1ea-485c-85fc-e5312c7aee67.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Mondays & Tuesdays from 20:30 to 21:30 ICT on Channel 7HD.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Channel 7HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Channel+7HD+The+Soulmate+Rings+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=The+Soulmate+Rings+EP+12+ENG+SUB"}]}]}, {"Series Title": "khom khlang The Series", "Alternative Title": "\u0e04\u0e21\u0e02\u0e25\u0e31\u0e07", "Genre": "LGBTQ+, Girls Love (GL), Mystery", "Channel / Platform": "WeTV", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-01-01", "Airing Day": "Monday", "Thai Air Time (24h)": "20:00", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmkwgc5a802z1mw0jhw39cz8h", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmkwgc5a802z1mw0jhw39cz8h/2026/01/drama__af25e515-ac40-4664-b396-971f49bc464a.jpg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Mondays at 20:00 ICT on WeTV.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (WeTV Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=WeTV+khom+khlang+The+Series+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=khom+khlang+The+Series+EP+12+ENG+SUB"}]}]}, {"Series Title": "Beneath The Lies", "Alternative Title": "\u0e43\u0e15\u0e49\u0e40\u0e07\u0e32\u0e25\u0e27\u0e07", "Genre": "Melodrama, Drama, Suspense", "Channel / Platform": "Channel 3HD", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-09-01", "Airing Day": "Monday, Tuesday", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmolo0ipa070cpd0kz6hhc9do", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmolo0ipa070cpd0kz6hhc9do/2026/09/drama__7049937b-5e36-4b34-9f0f-69dd83a099f2.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Mondays & Tuesdays at 20:30 ICT on Channel 3HD.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Channel 3HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Beneath+The+Lies+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Beneath+The+Lies+EP+12+ENG+SUB"}]}]}, {"Series Title": "Murder in The Kitchen", "Alternative Title": "\u0e06\u0e32\u0e15\u0e01\u0e23\u0e23\u0e21\u0e43\u0e19\u0e04\u0e23\u0e31\u0e27", "Genre": "Period, Drama", "Channel / Platform": "TrueVisions", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-07-01", "Airing Day": "Tuesday", "Thai Air Time (24h)": "19:00", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmrth6dzh02btrq0kx0sg8qud", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmrth6dzh02btrq0kx0sg8qud/2026/07/drama__4a8da0ee-7907-427f-ad63-cb27ee8e0b9f.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Tuesdays at 19:00 ICT on TrueVisions.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (TrueVisions Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=TrueVisions+Murder+in+The+Kitchen+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Murder+in+The+Kitchen+EP+12+ENG+SUB"}]}]}, {"Series Title": "Hell Home", "Alternative Title": "\u0e1a\u0e49\u0e32\u0e19\u0e19\u0e23\u0e01", "Genre": "Drama, Thriller, Mystery", "Channel / Platform": "TrueVisions", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-09-01", "Airing Day": "Wednesday", "Thai Air Time (24h)": "19:00", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmu2t5nha0buls40kdvluyrkz", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmu2t5nha0buls40kdvluyrkz/2026/09/drama__0c47a264-1b46-4d67-bd01-9c801d96376e.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Wednesdays at 19:00 ICT on TrueVisions.", "aired_episodes_count": 8, "sources": [{"sourceName": "YouTube (TrueVisions Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=TrueVisions+Hell+Home+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=TrueVisions+Hell+Home+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=TrueVisions+Hell+Home+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=TrueVisions+Hell+Home+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=TrueVisions+Hell+Home+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=TrueVisions+Hell+Home+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=TrueVisions+Hell+Home+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=TrueVisions+Hell+Home+EP+8"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Hell+Home+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Hell+Home+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Hell+Home+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Hell+Home+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Hell+Home+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Hell+Home+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Hell+Home+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Hell+Home+EP+8+ENG+SUB"}]}]}, {"Series Title": "Dark Legacy", "Alternative Title": "\u0e21\u0e23\u0e14\u0e01\u0e21\u0e37\u0e14", "Genre": "Psychological, Drama, Suspense", "Channel / Platform": "Channel 7HD", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-09-01", "Airing Day": "Wednesday", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmhk1swpm05sw3p0rwf30pthv", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmhk1swpm05sw3p0rwf30pthv/2026/09/drama__581bd0d6-1986-4359-9b14-c977991bb602.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Wednesdays from 20:30 to 21:30 ICT on Channel 7HD.", "aired_episodes_count": 8, "sources": [{"sourceName": "YouTube (Channel 7HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dark+Legacy+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dark+Legacy+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dark+Legacy+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dark+Legacy+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dark+Legacy+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dark+Legacy+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dark+Legacy+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dark+Legacy+EP+8"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Dark+Legacy+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Dark+Legacy+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Dark+Legacy+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Dark+Legacy+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Dark+Legacy+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Dark+Legacy+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Dark+Legacy+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Dark+Legacy+EP+8+ENG+SUB"}]}]}, {"Series Title": "Motherland", "Alternative Title": "\u0e21\u0e32\u0e15\u0e38\u0e20\u0e39\u0e21\u0e34", "Genre": "Melodrama, Drama, Action", "Channel / Platform": "Channel 3HD", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-10-01", "Airing Day": "Wednesday", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmon6d4tb07inpd0kxiko561b", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmon6d4tb07inpd0kxiko561b/2026/10/drama__1b29e9b5-7060-4b9c-815b-fc3bad35ba4b.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Wednesdays at 20:30 ICT on Channel 3HD.", "aired_episodes_count": 3, "sources": [{"sourceName": "YouTube (Channel 3HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Motherland+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Motherland+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Motherland+EP+3"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Motherland+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Motherland+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Motherland+EP+3+ENG+SUB"}]}]}, {"Series Title": "Teach Me Touch Me", "Alternative Title": "\u0e2a\u0e2d\u0e19\u0e23\u0e31\u0e01\u0e2a\u0e31\u0e21\u0e1c\u0e31\u0e2a\u0e23\u0e31\u0e01", "Genre": "Comedy, LGBTQ+, Boys' Love (BL)", "Channel / Platform": "iQIYI", "Status": "Confirmed", "Premiere Date (YYYY-MM-DD)": "2026-01-01", "Airing Day": "Wednesday", "Thai Air Time (24h)": "20:00", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmlxcpo1o00mmoa0kxeqxvbem", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmuwqaiom01prob0kcmhjnycf/2026/10/drama__35187695-7bc9-4e6e-a839-5ef55687f4e6.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Airs Wednesdays at 20:00 ICT on iQIYI.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (iQIYI Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=iQIYI+Teach+Me+Touch+Me+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Teach+Me+Touch+Me+EP+12+ENG+SUB"}]}]}, {"Series Title": "Mae Jom Khwan", "Alternative Title": "\u0e41\u0e21\u0e48\u0e08\u0e2d\u0e21\u0e02\u0e27\u0e31\u0e0d", "Genre": "Action, Comedy, Romantic", "Channel / Platform": "Channel 7HD", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2026-10-26", "Airing Day": "TBD", "Thai Air Time (24h)": "19:00", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmjja6ydt000k150re8fkavm3", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmjja6ydt000k150re8fkavm3/2026/10/drama__46e00eb2-4272-496b-b3d2-4ad8341cd63f.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering Oct 26, 2026 (30 episodes).", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (Channel 7HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Mae+Jom+Khwan+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Mae+Jom+Khwan+Trailer+ENG+SUB"}]}]}, {"Series Title": "Lovers & Gangsters", "Alternative Title": "\u0e2b\u0e07\u0e40\u0e2a\u0e19\u0e04\u0e25\u0e38\u0e01\u0e1d\u0e38\u0e48\u0e19", "Genre": "Period, Action, LGBTQ+", "Channel / Platform": "One 31", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2026-10-30", "Airing Day": "TBD", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmkfheofp00scl10k0s7j750w", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmkfheofp00scl10k0s7j750w/2026/08/drama__7bf56693-18f3-4974-b910-29c035ac29ae.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering Oct 30, 2026.", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (One 31 Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Lovers+%26+Gangsters+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Lovers+%26+Gangsters+Trailer+ENG+SUB"}]}]}, {"Series Title": "The Silent Killer", "Alternative Title": "\u0e2a\u0e48\u0e2d\u0e07 \u0e2a\u0e31\u0e48\u0e07 \u0e15\u0e32\u0e22", "Genre": "Action, Crime, Romantic", "Channel / Platform": "Channel 7HD", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2026-11-04", "Airing Day": "TBD", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmpw4ks9d00scnu0kgemw2km9", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmpw4ks9d00scnu0kgemw2km9/2026/10/drama__5d349c0b-fb7f-4115-bf60-a2e73d9165e7.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering Nov 4, 2026.", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (Channel 7HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=The+Silent+Killer+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=The+Silent+Killer+Trailer+ENG+SUB"}]}]}, {"Series Title": "My Chef In Crime", "Alternative Title": "\u0e40\u0e2b\u0e15\u0e38\u0e40\u0e01\u0e34\u0e14\u0e17\u0e35\u0e48\u0e04\u0e38\u0e13\u0e40\u0e0a\u0e1f", "Genre": "Crime, Comedy, Romance", "Channel / Platform": "TrueVisions", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2026-11-05", "Airing Day": "TBD", "Thai Air Time (24h)": "19:00", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmoyht7ci0adjpd0kvstkjcx6", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmoyht7ci0adjpd0kvstkjcx6/2026/10/drama__0c7d9658-6ba4-4f51-b854-f1eba3982f40.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering Nov 5, 2026.", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (TrueVisions Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=My+Chef+In+Crime+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=My+Chef+In+Crime+Trailer+ENG+SUB"}]}]}, {"Series Title": "Oxytoxin", "Alternative Title": "\u0e08\u0e38\u0e19\u0e43\u0e08\u0e44\u0e2d\u0e14\u0e32\u0e27", "Genre": "Comedy, LGBTQ+, Girls Love (GL)", "Channel / Platform": "GMM25", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2026-11-07", "Airing Day": "TBD", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmizp4ldy00bx3n0rq4t7wsls", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmizp4ldy00bx3n0rq4t7wsls/2025/12/drama__d020085a-dc91-4dc9-964a-73ed7484d3e2.jpg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering Nov 7, 2026.", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (GMM25 Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Oxytoxin+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Oxytoxin+Trailer+ENG+SUB"}]}]}, {"Series Title": "Love Bound", "Alternative Title": "\u0e23\u0e31\u0e01\u0e19\u0e35\u0e49\u0e15\u0e35\u0e15\u0e23\u0e32", "Genre": "Drama, Suspense, LGBTQ+", "Channel / Platform": "Channel 9 MCOT HD", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2026-11-08", "Airing Day": "TBD", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmlv1wgp9006rme0k0htm9htr", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/dramas/posters/drama_101068_2848ab52-3e03-4cc6-a565-220e1aa02e89.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering Nov 8, 2026 (8 episodes).", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (Channel 9 MCOT HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Love+Bound+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Love+Bound+Trailer+ENG+SUB"}]}]}, {"Series Title": "The Grim Lover", "Alternative Title": "\u0e23\u0e31\u0e01 \u0e25\u0e37\u0e21 \u0e15\u0e32\u0e22", "Genre": "Drama, LGBTQ+, Boys' Love (BL)", "Channel / Platform": "One 31", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2026-11-28", "Airing Day": "TBD", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmky5s5ln04wlmw0jzob8sv3h", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmky5s5ln04wlmw0jzob8sv3h/2026/01/drama__5843f575-65fb-49b6-aa7c-19df601c5319.jpg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering Nov 28, 2026.", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (One 31 Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=The+Grim+Lover+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=The+Grim+Lover+Trailer+ENG+SUB"}]}]}, {"Series Title": "Scarlet Heart Thailand", "Alternative Title": "\u0e1b\u0e32\u0e0f\u0e34\u0e2b\u0e32\u0e23\u0e34\u0e22\u0e4c\u0e02\u0e49\u0e32\u0e21\u0e01\u0e32\u0e25\u0e40\u0e27\u0e25\u0e32", "Genre": "Period, Drama, Fantasy", "Channel / Platform": "GMMTV / One 31", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2026-11-01", "Airing Day": "TBD", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmj1l1850014e3n0rnztpyn6j", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmj1l1850014e3n0rnztpyn6j/2026/10/drama_ScarletHeartThailand_27369b1b-2253-456f-af0a-59b1b9d0f14b.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering Nov 2026.", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (GMMTV / One 31 Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Scarlet+Heart+Thailand+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Scarlet+Heart+Thailand+Trailer+ENG+SUB"}]}]}, {"Series Title": "Raeng Ngao", "Alternative Title": "\u0e41\u0e23\u0e07\u0e40\u0e07\u0e32", "Genre": "Drama, Suspense, Revenge", "Channel / Platform": "Channel 3HD", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2026-12-01", "Airing Day": "TBD", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmm3nym4j00x3o00k6okdbz0o", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmm3nym4j00x3o00k6okdbz0o/2026/10/drama__42dae219-9b49-4821-af31-16aa05f0bdde.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering Dec 2026.", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (Channel 3HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Raeng+Ngao+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=Raeng+Ngao+Trailer+ENG+SUB"}]}]}, {"Series Title": "669 Love Rescue", "Alternative Title": "669 \u0e28\u0e39\u0e19\u0e22\u0e4c\u0e41\u0e08\u0e49\u0e07\u0e23\u0e49\u0e32\u0e22\u0e01\u0e25\u0e32\u0e22\u0e40\u0e1b\u0e47\u0e19\u0e23\u0e31\u0e01", "Genre": "Comedy, Romantic", "Channel / Platform": "GMMTV", "Status": "Upcoming", "Premiere Date (YYYY-MM-DD)": "2027-01-15", "Airing Day": "TBD", "Thai Air Time (24h)": "20:30", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmizlavok00593n0rptaqqzp6", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmizlavok00593n0rptaqqzp6/2025/12/drama_669_c4b31827-043f-4d04-b459-2d4b87a98668.jpg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Premiering early 2027.", "aired_episodes_count": 0, "sources": [{"sourceName": "YouTube (GMMTV Channel)", "sourceBadge": "Official", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=669+Love+Rescue+Official+Trailer"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "Trailer / Teaser", "url": "https://www.youtube.com/results?search_query=669+Love+Rescue+Trailer+ENG+SUB"}]}]}, {"Series Title": "Chaloei Rak", "Alternative Title": "\u0e40\u0e0a\u0e25\u0e22\u0e23\u0e31\u0e01", "Genre": "Drama, Romantic", "Channel / Platform": "Channel 3HD", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "1996-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmesctmha0ej7wumqx10trrs4", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/dramas/posters/drama_97550_1528bb5f-7289-4602-903c-93819c75080d.jpg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 1996.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Channel 3HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Chaloei+Rak+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Chaloei+Rak+EP+12+ENG+SUB"}]}]}, {"Series Title": "Moradok Pee Dok", "Alternative Title": "\u0e21\u0e23\u0e14\u0e01\u0e1c\u0e35\u0e14\u0e01", "Genre": "Sitcom, Comedy", "Channel / Platform": "Channel 7HD", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "2020-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmesdhvod0ldhwumq3g4qbonb", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmesdhvod0ldhwumq3g4qbonb/2025/10/drama__02ae69bf-db5a-4ba0-9d11-5a402e038874.jpeg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 2020 on CH7.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Channel 7HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Moradok+Pee+Dok+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Moradok+Pee+Dok+EP+12+ENG+SUB"}]}]}, {"Series Title": "My Sexy Shadow", "Alternative Title": "\u0e04\u0e19\u0e42\u0e2b\u0e14\u0e1a\u0e32\u0e19\u0e09\u0e48\u0e33", "Genre": "Comedy, LGBTQ+", "Channel / Platform": "Monomax", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "2026-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmizlf419005s3n0rnj3el80e", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmizlf419005s3n0rnj3el80e/2026/05/drama__11eb0579-878e-4521-8e77-d2529255d06f.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 2026 on Monomax.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Monomax Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Monomax+My+Sexy+Shadow+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=My+Sexy+Shadow+EP+12+ENG+SUB"}]}]}, {"Series Title": "Dok Sok (Pak Ka Thong Series)", "Alternative Title": "\u0e14\u0e2d\u0e01\u0e42\u0e28\u0e01 (\u0e25\u0e30\u0e04\u0e23\u0e0a\u0e38\u0e14\u0e1b\u0e32\u0e01\u0e01\u0e32\u0e17\u0e2d\u0e07)", "Genre": "Drama, Romantic", "Channel / Platform": "Channel 7HD", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "1995-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmesct5i10edxwumqeqf24mhr", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/dramas/posters/drama_97482_1e084d17-0712-41a5-ad19-177733644a05.jpg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 1995.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Channel 7HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Dok+Sok+%28Pak+Ka+Thong+Series%29+EP+12+ENG+SUB"}]}]}, {"Series Title": "JULIET & JULIET", "Alternative Title": "\u0e08\u0e39\u0e40\u0e25\u0e35\u0e22\u0e15\u0e41\u0e2d\u0e19\u0e14\u0e4c\u0e08\u0e39\u0e40\u0e25\u0e35\u0e22\u0e15", "Genre": "Drama, LGBTQ+", "Channel / Platform": "One 31 / GagaOOLala", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "2026-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmm3o630d00y0o00kcdatyrh9", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmm3o630d00y0o00kcdatyrh9/2026/02/drama_JULIETJULIET_a1cf0253-744e-4104-a89f-7f6990be9aae.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 2026.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (One 31 / GagaOOLala Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=One+31+%2F+GagaOOLala+JULIET+%26+JULIET+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=JULIET+%26+JULIET+EP+12+ENG+SUB"}]}]}, {"Series Title": "Phiang Thor (Only You)", "Alternative Title": "\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e40\u0e18\u0e2d Only You", "Genre": "Melodrama, Action", "Channel / Platform": "Channel 3HD", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "2025-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmesdqme80nt9wumqwxp7l5p2", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/dramas/posters/drama_168843_83de78f6-eb37-40a8-8097-f021cf43bbc9.jpg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 2025.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Channel 3HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Phiang+Thor+%28Only+You%29+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Phiang+Thor+%28Only+You%29+EP+12+ENG+SUB"}]}]}, {"Series Title": "Final Love (My Safe Zone)", "Alternative Title": "\u0e23\u0e31\u0e01\u0e2a\u0e38\u0e14\u0e17\u0e49\u0e32\u0e22 My Safe Zone", "Genre": "Drama, LGBTQ+", "Channel / Platform": "Channel 3HD", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "2025-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmgipztsu00sb300qv8xudcpr", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmgipztsu00sb300qv8xudcpr/2025/10/drama__9a067c9c-7174-4ee7-ae16-d680b18db4d4.jpg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 2025.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Channel 3HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Channel+3HD+Final+Love+%28My+Safe+Zone%29+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Final+Love+%28My+Safe+Zone%29+EP+12+ENG+SUB"}]}]}, {"Series Title": "Mind Universe", "Alternative Title": "\u0e08\u0e31\u0e01\u0e23\u0e27\u0e32\u0e25\u0e43\u0e08", "Genre": "Psychological, Drama", "Channel / Platform": "VIPA", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "2026-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmvjq0l5q00pqqj0kw28qxlzi", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmvjq0l5q00pqqj0kw28qxlzi/2026/10/drama__1d58817b-50e2-43de-b7fb-603c9fc21376.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 2026 on VIPA.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (VIPA Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=VIPA+Mind+Universe+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Mind+Universe+EP+12+ENG+SUB"}]}]}, {"Series Title": "Oops! I'm the Concubine", "Alternative Title": "\u0e21\u0e40\u0e2b\u0e2a\u0e35\u0e19\u0e49\u0e2d\u0e22", "Genre": "Folklore, Period", "Channel / Platform": "TrueID", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "2026-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmkx9un1003spmw0jpyssx91p", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmkx9un1003spmw0jpyssx91p/2026/02/drama__dc7851c2-2695-4441-b51b-d109433e64c2.jpg", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 2026 on TrueID.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (TrueID Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=TrueID+Oops%21+I%27m+the+Concubine+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Oops%21+I%27m+the+Concubine+EP+12+ENG+SUB"}]}]}, {"Series Title": "Keetaloka", "Alternative Title": "\u0e04\u0e35\u0e15\u0e42\u0e25\u0e01\u0e32", "Genre": "Melodrama, Drama", "Channel / Platform": "Channel 7HD", "Status": "Completed", "Premiere Date (YYYY-MM-DD)": "2014-01-01", "Airing Day": "", "Thai Air Time (24h)": "", "Time Zone": "Asia/Bangkok", "Official Series URL": "https://thaicontentdb.com/en/dramas/cmesd853x0iowwumqc76ccxyc", "Poster URL (official/permitted)": "https://thaitvseriesimage.sgp1.digitaloceanspaces.com/posters/drama/cmesd853x0iowwumqc76ccxyc/2026/03/drama__87596943-355d-43e9-8898-1f80e85c77da.webp", "Last Verified (YYYY-MM-DD)": "2026-10-25", "Notes": "Aired in 2014 on CH7.", "aired_episodes_count": 12, "sources": [{"sourceName": "YouTube (Channel 7HD Channel)", "sourceBadge": "Official", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+1"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+2"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+3"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+4"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+5"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+6"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+7"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+8"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+9"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+10"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+11"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Channel+7HD+Keetaloka+EP+12"}]}, {"sourceName": "YouTube (All Episodes & Subtitles Search)", "sourceBadge": "YouTube Search", "episodes": [{"ep": "EP 01", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+1+ENG+SUB"}, {"ep": "EP 02", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+2+ENG+SUB"}, {"ep": "EP 03", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+3+ENG+SUB"}, {"ep": "EP 04", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+4+ENG+SUB"}, {"ep": "EP 05", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+5+ENG+SUB"}, {"ep": "EP 06", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+6+ENG+SUB"}, {"ep": "EP 07", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+7+ENG+SUB"}, {"ep": "EP 08", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+8+ENG+SUB"}, {"ep": "EP 09", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+9+ENG+SUB"}, {"ep": "EP 10", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+10+ENG+SUB"}, {"ep": "EP 11", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+11+ENG+SUB"}, {"ep": "EP 12", "url": "https://www.youtube.com/results?search_query=Keetaloka+EP+12+ENG+SUB"}]}]}];
-
-        let activeTab = 'home';
-        let currentActiveSeriesIndex = 0;
-        let selectedServerIndex = 0;
-
-        lucide.createIcons();
-
-        function switchTab(tabId) {
-            ['home', 'onair', 'upcoming', 'directory', 'watch'].forEach(t => {
-                document.getElementById('tab-' + t).classList.add('hidden');
-                const nav = document.getElementById('nav-' + t);
-                if (nav) {
-                    nav.classList.remove('text-rose-400');
-                    nav.classList.add('text-slate-300');
-                }
-            });
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            const activeNav = document.getElementById('nav-' + tabId);
-            if (activeNav) {
-                activeNav.classList.remove('text-slate-300');
-                activeNav.classList.add('text-rose-400');
-            }
-            if (tabId !== 'watch') activeTab = tabId;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+      const el = (id) => document.getElementById(id);
+      const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      const imageUrl = (path, base = POSTER_BASE) => path && typeof path === 'string' ? `${base}${path.startsWith('/') ? '' : '/'}${path}` : '';
+      const safeTmdbUrl = (item) => {
+        const candidate = item && item.tmdb_url;
+        if (typeof candidate === 'string') {
+          try { const url = new URL(candidate); if (url.protocol === 'https:' && url.hostname === 'www.themoviedb.org') return url.href; } catch (_) {}
         }
+        return item && item.id ? `https://www.themoviedb.org/tv/${encodeURIComponent(item.id)}` : 'https://www.themoviedb.org/';
+      };
+      const titleOf = (item) => item.name || item.original_name || 'Untitled Thai series';
+      const originalOf = (item) => item.original_name && item.original_name !== item.name ? item.original_name : '';
+      const genreNames = (item) => (Array.isArray(item.genre_ids) ? item.genre_ids : []).map(id => GENRES[id] || `Genre ${id}`);
+      const yearOf = (item) => item.first_air_date && /^\d{4}/.test(item.first_air_date) ? item.first_air_date.slice(0, 4) : 'Unknown';
+      const dateOf = (value) => {
+        if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'Release date not listed';
+        const d = new Date(`${value}T00:00:00Z`);
+        return Number.isNaN(d.getTime()) ? value : new Intl.DateTimeFormat('en', {year:'numeric', month:'short', day:'numeric', timeZone:'UTC'}).format(d);
+      };
+      const formatNumber = (n) => Number.isFinite(Number(n)) ? new Intl.NumberFormat('en').format(Number(n)) : '—';
+      const ratingOf = (item) => Number.isFinite(Number(item.vote_average)) && Number(item.vote_average) > 0 ? Number(item.vote_average) : null;
+      const popularityOf = (item) => Number.isFinite(Number(item.popularity)) ? Number(item.popularity) : 0;
+      const titleCompare = (a,b) => titleOf(a).localeCompare(titleOf(b), 'en', {sensitivity:'base'});
+      const dateCompare = (a,b) => (b.first_air_date || '').localeCompare(a.first_air_date || '');
+      const detailItem = (id) => seriesData.find(item => String(item.id) === String(id));
 
-        function goBackFromWatch() {
-            switchTab(activeTab || 'directory');
+      async function fetchJson(url) {
+        const response = await fetch(url, {headers:{'Accept':'application/json'}});
+        if (!response.ok) throw new Error(`HTTP ${response.status} from ${url}`);
+        return response.json();
+      }
+      async function loadCatalogue() {
+        el('loadError').classList.remove('show');
+        el('loadingGrid').style.display = 'grid';
+        el('seriesGrid').innerHTML = '';
+        el('pagination').innerHTML = '';
+        el('resultCount').textContent = 'Loading catalogue…';
+        const errors = [];
+        let payload = null;
+        try { payload = await fetchJson(LOCAL_DATA_URL); }
+        catch (error) { errors.push(`Local data: ${error.message}`); }
+        if (!payload) {
+          try { payload = await fetchJson(REMOTE_DATA_URL); }
+          catch (error) { errors.push(`GitHub data: ${error.message}`); }
         }
-
-        function openSeriesDetail(index) {
-            currentActiveSeriesIndex = index;
-            selectedServerIndex = 0;
-            const item = seriesData[index];
-
-            document.getElementById('detail-poster').src = item['Poster URL (official/permitted)'] || 'https://thaitvseriesimage.sgp1.digitaloceanspaces.com/dramas/posters/drama_101068_2848ab52-3e03-4cc6-a565-220e1aa02e89.webp';
-            document.getElementById('detail-title').innerText = item['Series Title'];
-            document.getElementById('detail-alt-title').innerText = item['Alternative Title'] || '';
-            document.getElementById('detail-genre').innerText = item['Genre'];
-            document.getElementById('detail-premiere').innerText = item['Premiere Date (YYYY-MM-DD)'] || 'TBA';
-            document.getElementById('detail-schedule').innerText = item['Airing Day'] ? `${item['Airing Day']} @ ${item['Thai Air Time (24h)'] || ''} ICT` : 'TBA';
-            document.getElementById('detail-notes').innerText = item['Notes'] || 'No additional notes provided.';
-            document.getElementById('detail-channel-badge').innerText = item['Channel / Platform'];
-            
-            const airedCnt = item.aired_episodes_count || 0;
-            if (item.Status === 'Completed') {
-                document.getElementById('detail-aired-count').innerText = `${airedCnt} Episodes (Full Series Completed)`;
-            } else if (item.Status === 'Upcoming' || airedCnt === 0) {
-                document.getElementById('detail-aired-count').innerText = `0 Episodes Aired (Premiere Upcoming)`;
-            } else {
-                document.getElementById('detail-aired-count').innerText = `EP 01 – EP ${String(airedCnt).padStart(2, '0')} (Aired as of Today)`;
-            }
-
-            const statusBadge = document.getElementById('detail-status-badge');
-            statusBadge.innerText = item['Status'];
-            if (item['Status'] === 'Upcoming') {
-                statusBadge.className = 'text-xs font-semibold px-3 py-1 rounded-full border bg-purple-500/20 text-purple-400 border-purple-500/30';
-            } else if (item['Status'] === 'Completed') {
-                statusBadge.className = 'text-xs font-semibold px-3 py-1 rounded-full border bg-blue-500/20 text-blue-400 border-blue-500/30';
-            } else {
-                statusBadge.className = 'text-xs font-semibold px-3 py-1 rounded-full border bg-rose-500/20 text-rose-400 border-rose-500/30';
-            }
-
-            renderServerTabsAndEpisodes();
-            switchTab('watch');
+        const records = Array.isArray(payload) ? payload : payload && Array.isArray(payload.series) ? payload.series : null;
+        if (!records) {
+          el('loadingGrid').style.display = 'none';
+          el('loadErrorText').textContent = `Could not find a valid “series” array. ${errors.join(' | ')}`;
+          el('loadError').classList.add('show');
+          el('resultCount').textContent = 'Catalogue unavailable';
+          return;
         }
-
-        function renderServerTabsAndEpisodes() {
-            const item = seriesData[currentActiveSeriesIndex];
-            const sources = item.sources || [];
-
-            // Server selector tabs
-            const tabsContainer = document.getElementById('server-tabs');
-            tabsContainer.innerHTML = sources.map((src, sIdx) => {
-                const isActive = sIdx === selectedServerIndex;
-                const activeStyle = isActive ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30 border-rose-500' : 'bg-dark-900/80 text-slate-300 hover:bg-dark-700 border-dark-700';
-                return `
-                    <button onclick="selectServerSource(${sIdx})" class="px-4 py-2 rounded-xl text-xs font-semibold border transition flex items-center space-x-2 ${activeStyle}">
-                        <i data-lucide="youtube" class="w-4 h-4 text-rose-500"></i>
-                        <span>Line ${sIdx + 1}: ${src.sourceName}</span>
-                    </button>
-                `;
-            }).join('');
-
-            // Episodes for active source
-            const activeSource = sources[selectedServerIndex] || sources[0];
-            const epGrid = document.getElementById('episode-buttons-grid');
-            if (activeSource && activeSource.episodes && activeSource.episodes.length > 0) {
-                epGrid.innerHTML = activeSource.episodes.map(ep => {
-                    return `
-                        <a href="${ep.url}" target="_blank" rel="noopener noreferrer" class="bg-dark-900/90 hover:bg-rose-600 text-slate-200 hover:text-white font-medium py-2.5 px-3 rounded-xl border border-dark-700 hover:border-rose-500 text-center text-xs transition shadow-sm hover:shadow-rose-600/20 flex flex-col items-center justify-center space-y-1">
-                            <span class="font-bold">${ep.ep}</span>
-                            <span class="text-[10px] text-slate-400 group-hover:text-white">YouTube Search</span>
-                        </a>
-                    `;
-                }).join('');
-            } else {
-                epGrid.innerHTML = `<p class="text-xs text-slate-400 col-span-full py-4 italic">No episodes released yet for this series.</p>`;
-            }
-
-            lucide.createIcons();
+        seriesData = records.filter(item => item && typeof item === 'object' && (item.id !== undefined || item.name || item.original_name));
+        latestGeneratedAt = payload && !Array.isArray(payload) ? (payload.generated_at || '') : '';
+        if (!seriesData.length) {
+          el('loadingGrid').style.display = 'none';
+          el('loadErrorText').textContent = 'The JSON loaded, but the series array contains no usable records.';
+          el('loadError').classList.add('show');
+          return;
         }
+        populateFilters();
+        renderStats();
+        renderGenres();
+        renderHero();
+        el('loadingGrid').style.display = 'none';
+        currentPage = 1;
+        renderCatalogue();
+      }
 
-        function selectServerSource(sIdx) {
-            selectedServerIndex = sIdx;
-            renderServerTabsAndEpisodes();
+      function populateFilters() {
+        const genreCounts = new Map();
+        const years = new Set();
+        seriesData.forEach(item => {
+          (Array.isArray(item.genre_ids) ? item.genre_ids : []).forEach(id => genreCounts.set(String(id), (genreCounts.get(String(id)) || 0) + 1));
+          const year = yearOf(item);
+          if (year !== 'Unknown') years.add(year);
+        });
+        const genreFilter = el('genreFilter');
+        genreFilter.innerHTML = '<option value="all">All genres</option>' + Array.from(genreCounts.keys()).sort((a,b) => (GENRES[Number(a)] || '').localeCompare(GENRES[Number(b)] || '')).map(id => `<option value="${escapeHtml(id)}">${escapeHtml(GENRES[Number(id)] || `Genre ${id}`)}</option>`).join('');
+        const yearFilter = el('yearFilter');
+        yearFilter.innerHTML = '<option value="all">All years</option>' + Array.from(years).sort((a,b) => Number(b)-Number(a)).map(year => `<option value="${year}">${year}</option>`).join('');
+      }
+
+      function renderStats() {
+        const years = seriesData.map(yearOf).filter(year => year !== 'Unknown').map(Number);
+        const rated = seriesData.filter(item => ratingOf(item) !== null).length;
+        const genres = new Set(seriesData.flatMap(item => Array.isArray(item.genre_ids) ? item.genre_ids : []));
+        el('statTotal').textContent = formatNumber(seriesData.length);
+        el('statYears').textContent = years.length ? `${Math.min(...years)}–${Math.max(...years)}` : '—';
+        el('statRated').textContent = formatNumber(rated);
+        el('statGenres').textContent = formatNumber(genres.size);
+      }
+
+      function renderHero() {
+        const featured = [...seriesData].sort((a,b) => {
+          const dateDiff = (b.first_air_date || '').localeCompare(a.first_air_date || '');
+          if (dateDiff !== 0) return dateDiff;
+          return popularityOf(b) - popularityOf(a);
+        }).find(item => item.backdrop_path || item.poster_path) || seriesData[0];
+        if (!featured) return;
+        el('heroTitle').textContent = titleOf(featured);
+        el('heroOverview').textContent = featured.overview || 'Explore this Thai TV title, including its original name, first-air date, genres and TMDB information.';
+        const bg = imageUrl(featured.backdrop_path, BACKDROP_BASE) || imageUrl(featured.poster_path, BACKDROP_BASE);
+        if (bg) { el('heroImage').src = bg; el('heroImage').onerror = () => { el('heroImage').style.display = 'none'; }; }
+        const rating = ratingOf(featured);
+        const genres = genreNames(featured).slice(0,2);
+        el('heroMeta').innerHTML = `<span class="meta-item">▣ ${escapeHtml(yearOf(featured))}</span>${rating !== null ? `<span class="meta-item"><span class="star">★</span> ${rating.toFixed(1)} <span style="color:#8f8da0">/ 10</span></span>` : ''}${genres.map(g => `<span class="meta-item">${escapeHtml(g)}</span>`).join('')}`;
+        el('heroTmdbLink').href = safeTmdbUrl(featured);
+        el('heroExplore').onclick = () => { el('catalogue').scrollIntoView({behavior:'smooth'}); el('searchInput').focus({preventScroll:true}); };
+        el('heroTitle').setAttribute('data-featured-id', String(featured.id ?? ''));
+      }
+
+      function renderGenres() {
+        const counts = new Map();
+        seriesData.forEach(item => (Array.isArray(item.genre_ids) ? item.genre_ids : []).forEach(id => counts.set(id, (counts.get(id) || 0)+1)));
+        const popularGenres = Array.from(counts.entries()).sort((a,b) => b[1]-a[1]).slice(0,6);
+        el('genreGrid').innerHTML = popularGenres.map(([id,count],index) => `
+          <button class="genre-card" type="button" data-genre="${escapeHtml(id)}" style="--glow:${GENRE_GLOW[index % GENRE_GLOW.length]}">
+            <span class="genre-emoji" aria-hidden="true">${GENRE_EMOJI[id] || '🎬'}</span>
+            <span class="genre-name">${escapeHtml(GENRES[id] || `Genre ${id}`)}</span>
+            <span class="genre-count">${formatNumber(count)} titles <span aria-hidden="true">↗</span></span>
+          </button>`).join('') || '<p class="section-desc">No genre information available.</p>';
+      }
+
+      function filteredSeries() {
+        const query = (el('searchInput').value || el('mobileSearchInput').value || '').trim().toLocaleLowerCase();
+        const selectedGenre = el('genreFilter').value;
+        const selectedYear = el('yearFilter').value;
+        let list = seriesData.filter(item => {
+          if (selectedGenre !== 'all' && !(Array.isArray(item.genre_ids) && item.genre_ids.some(id => String(id) === selectedGenre))) return false;
+          if (selectedYear !== 'all' && yearOf(item) !== selectedYear) return false;
+          if (currentView === 'rated' && ratingOf(item) === null) return false;
+          if (query) {
+            const haystack = [item.name, item.original_name, item.overview, item.first_air_date, ...(Array.isArray(item.genre_ids) ? item.genre_ids.map(id => GENRES[id] || id) : [])].filter(Boolean).join(' ').toLocaleLowerCase();
+            if (!haystack.includes(query)) return false;
+          }
+          return true;
+        });
+        const sort = currentView === 'rated' ? 'rating' : currentView === 'recent' ? 'newest' : el('sortSelect').value;
+        if (sort === 'newest') list.sort(dateCompare);
+        else if (sort === 'oldest') list.sort((a,b) => (a.first_air_date || '9999').localeCompare(b.first_air_date || '9999'));
+        else if (sort === 'rating') list.sort((a,b) => (ratingOf(b) || 0) - (ratingOf(a) || 0) || Number(b.vote_count || 0)-Number(a.vote_count || 0));
+        else if (sort === 'popularity') list.sort((a,b) => popularityOf(b)-popularityOf(a));
+        else list.sort(titleCompare);
+        return list;
+      }
+
+      function cardTemplate(item) {
+        const title = titleOf(item);
+        const original = originalOf(item);
+        const poster = imageUrl(item.poster_path);
+        const rating = ratingOf(item);
+        const genres = genreNames(item).slice(0,2);
+        const date = yearOf(item);
+        const count = Number(item.vote_count || 0);
+        const safeId = escapeHtml(item.id ?? title);
+        return `<article class="series-card" tabindex="0" role="button" aria-label="View details for ${escapeHtml(title)}" data-open-id="${safeId}">
+          <div class="poster-wrap">
+            ${poster ? `<img class="poster" src="${escapeHtml(poster)}" alt="Poster for ${escapeHtml(title)}" loading="lazy" data-poster-fallback="true">` : ''}
+            <div class="poster-fallback" ${poster ? 'style="display:none"' : ''}><span class="symbol" aria-hidden="true">🎬</span><span>${escapeHtml(title)}</span></div>
+            <div class="poster-shade"></div>
+            ${rating !== null ? `<span class="rating-pill"><span>★</span> ${rating.toFixed(1)}</span>` : '<span class="rating-pill" style="color:#c4c2d1">Not rated</span>'}
+            <span class="year-pill">${escapeHtml(date)}</span>
+            <div class="poster-bottom">${genres.map(g => `<span class="mini-tag">${escapeHtml(g)}</span>`).join('')}</div>
+          </div>
+          <div class="card-body"><div class="card-title">${escapeHtml(title)}</div>
+            ${original ? `<div class="card-original" lang="th" title="${escapeHtml(original)}">${escapeHtml(original)}</div>` : '<div class="card-original">Thai TV series</div>'}
+            <div class="card-bottom"><span>${count > 0 ? `${formatNumber(count)} votes` : escapeHtml(date === 'Unknown' ? 'Date unavailable' : date)}</span><button class="open-detail" type="button" data-open-id="${safeId}">Details ↗</button></div>
+          </div>
+        </article>`;
+      }
+
+      function renderPagination(totalPages) {
+        const pagination = el('pagination');
+        if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+        const buttons = [];
+        buttons.push(`<button type="button" class="page-btn" data-page="${currentPage-1}" ${currentPage===1?'disabled':''} aria-label="Previous page">←</button>`);
+        let start = Math.max(1, currentPage - 2);
+        let end = Math.min(totalPages, currentPage + 2);
+        if (start > 1) {
+          buttons.push('<button type="button" class="page-btn" data-page="1">1</button>');
+          if (start > 2) buttons.push('<span class="result-count">…</span>');
         }
-
-        function renderCard(item, index) {
-            let badgeColor = 'bg-rose-500/20 text-rose-400 border-rose-500/30';
-            let badgeText = item.Status;
-            if (item.Status === 'Upcoming') badgeColor = 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-            if (item.Status === 'Completed') badgeColor = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-
-            const posterUrl = item['Poster URL (official/permitted)'] || 'https://thaitvseriesimage.sgp1.digitaloceanspaces.com/dramas/posters/drama_101068_2848ab52-3e03-4cc6-a565-220e1aa02e89.webp';
-            const epBadge = item.aired_episodes_count > 0 ? (item.Status === 'Completed' ? `${item.aired_episodes_count} EPs` : `Aired: EP 01-${String(item.aired_episodes_count).padStart(2, '0')}`) : 'Upcoming';
-
-            return `
-                <div class="bg-dark-800 rounded-2xl overflow-hidden border border-dark-700 flex flex-col justify-between hover:border-slate-600 transition shadow-lg group">
-                    <div class="relative h-48 sm:h-52 w-full overflow-hidden bg-dark-900 cursor-pointer" onclick="openSeriesDetail(${index})">
-                        <img src="${posterUrl}" alt="${item['Series Title']}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://thaitvseriesimage.sgp1.digitaloceanspaces.com/dramas/posters/drama_101068_2848ab52-3e03-4cc6-a565-220e1aa02e89.webp'">
-                        <div class="absolute inset-0 bg-gradient-to-t from-dark-800 via-transparent to-transparent"></div>
-                        <div class="absolute top-3 left-3 flex items-center space-x-1.5">
-                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full border backdrop-blur-md bg-dark-900/80 ${badgeColor}">${badgeText}</span>
-                            <span class="text-[10px] font-bold px-2 py-1 rounded-full border border-slate-700 backdrop-blur-md bg-dark-900/90 text-rose-300">${epBadge}</span>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <span class="text-xs font-medium px-2.5 py-1 rounded-md backdrop-blur-md bg-dark-900/80 text-slate-300 flex items-center space-x-1">
-                                <i data-lucide="tv" class="w-3 h-3 text-rose-400"></i>
-                                <span>${item['Channel / Platform']}</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
-                        <div class="space-y-1.5 cursor-pointer" onclick="openSeriesDetail(${index})">
-                            <h3 class="font-bold text-white text-lg group-hover:text-rose-400 transition leading-snug">${item['Series Title']}</h3>
-                            ${item['Alternative Title'] ? `<p class="text-xs text-slate-400">${item['Alternative Title']}</p>` : ''}
-                            <p class="text-xs text-slate-300 line-clamp-2 pt-1">${item['Notes'] || item['Genre']}</p>
-                        </div>
-                        <div class="flex flex-wrap gap-1.5 pt-2">
-                            ${item['Genre'].split(',').map(g => `<span class="text-[10px] bg-dark-700 text-slate-300 px-2 py-0.5 rounded">${g.trim()}</span>`).join('')}
-                        </div>
-                    </div>
-                    <div class="px-5 py-3 bg-dark-900/80 border-t border-dark-700 flex items-center justify-end text-xs">
-                        <button onclick="openSeriesDetail(${index})" class="w-full bg-rose-600/20 text-rose-400 hover:bg-rose-600 hover:text-white py-2 rounded-xl font-medium flex items-center justify-center space-x-2 transition border border-rose-500/30">
-                            <i data-lucide="play" class="w-3.5 h-3.5"></i>
-                            <span>Watch Episodes</span>
-                        </button>
-                    </div>
-                </div>
-            `;
+        for (let p=start; p<=end; p++) buttons.push(`<button type="button" class="page-btn ${p===currentPage?'active':''}" data-page="${p}" ${p===currentPage?'aria-current="page"':''}>${p}</button>`);
+        if (end < totalPages) {
+          if (end < totalPages - 1) buttons.push('<span class="result-count">…</span>');
+          buttons.push(`<button type="button" class="page-btn" data-page="${totalPages}">${totalPages}</button>`);
         }
+        buttons.push(`<button type="button" class="page-btn" data-page="${currentPage+1}" ${currentPage===totalPages?'disabled':''} aria-label="Next page">→</button>`);
+        pagination.innerHTML = buttons.join('');
+      }
 
-        function renderAll() {
-            const homeOnAir = seriesData.map((item, idx) => ({item, idx})).filter(x => x.item.Status === 'Confirmed').slice(0, 4);
-            document.getElementById('home-onair-grid').innerHTML = homeOnAir.map(x => renderCard(x.item, x.idx)).join('');
+      function renderCatalogue() {
+        const list = filteredSeries();
+        const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+        if (currentPage > totalPages) currentPage = totalPages;
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const visible = list.slice(start, start + PAGE_SIZE);
+        el('resultCount').innerHTML = list.length ? `Showing <strong>${formatNumber(start+1)}–${formatNumber(Math.min(start+PAGE_SIZE,list.length))}</strong> of <strong>${formatNumber(list.length)}</strong> matching series` : 'No matching series';
+        el('seriesGrid').innerHTML = visible.length ? visible.map(cardTemplate).join('') : '<div class="empty-state"><strong>No series found</strong>Try another title, Thai name, year or genre. <br><button id="emptyReset" class="btn btn-ghost" type="button" style="margin-top:16px">Clear filters</button></div>';
+        renderPagination(totalPages);
+        el('catalogueTitle').textContent = currentView === 'rated' ? 'Top rated Thai series' : currentView === 'recent' ? 'Latest Thai series' : 'Explore the catalogue';
+        el('catalogueSubtitle').textContent = latestGeneratedAt ? `Live catalogue · Updated ${dateOf(latestGeneratedAt.slice(0,10))} · Posters, original titles, dates, ratings and synopses.` : 'Posters, original titles, release dates, ratings and synopses.';
+        el('seriesGrid').querySelectorAll('img[data-poster-fallback]').forEach(img => {
+          img.addEventListener('error', () => {
+            img.style.display = 'none';
+            const fallback = img.parentElement.querySelector('.poster-fallback');
+            if (fallback) fallback.style.display = 'flex';
+          }, {once:true});
+        });
+      }
 
-            const homeUpcoming = seriesData.map((item, idx) => ({item, idx})).filter(x => x.item.Status === 'Upcoming').slice(0, 4);
-            document.getElementById('home-upcoming-grid').innerHTML = homeUpcoming.map(x => renderCard(x.item, x.idx)).join('');
+      function openDetails(item) {
+        if (!item) return;
+        previousFocus = document.activeElement;
+        const title = titleOf(item);
+        const original = originalOf(item);
+        const backdrop = imageUrl(item.backdrop_path, BACKDROP_BASE) || imageUrl(item.poster_path, BACKDROP_BASE);
+        if (backdrop) { el('detailBackdrop').src = backdrop; el('detailBackdrop').style.display = 'block'; }
+        else { el('detailBackdrop').removeAttribute('src'); el('detailBackdrop').style.display = 'none'; }
+        const poster = imageUrl(item.poster_path);
+        const rating = ratingOf(item);
+        const genres = genreNames(item);
+        const votes = Number(item.vote_count || 0);
+        const popularity = Number(item.popularity || 0);
+        el('modalContent').innerHTML = `<div class="detail-layout">
+          <div>${poster ? `<img class="detail-poster" src="${escapeHtml(poster)}" alt="Poster for ${escapeHtml(title)}" onerror="this.style.display='none'">` : '<div class="detail-poster" style="display:grid;place-items:center">🎬</div>'}</div>
+          <div><div class="section-kicker">Thai series · TMDB catalogue</div><h2 class="detail-title" id="detailTitle">${escapeHtml(title)}</h2>
+            ${original ? `<div class="detail-original" lang="th">${escapeHtml(original)}</div>` : ''}
+            <div class="detail-tags">${genres.map(g=>`<span class="detail-tag">${escapeHtml(g)}</span>`).join('') || '<span class="detail-tag">Genre not listed</span>'}<span class="detail-tag">First aired ${escapeHtml(yearOf(item))}</span></div>
+            <div class="detail-stats"><div class="detail-stat"><strong>${rating !== null ? `<span style="color:var(--gold)">★</span> ${rating.toFixed(1)}<small style="color:#8f8da0;font-size:10px"> / 10</small>` : '—'}</strong><span>TMDB rating</span></div><div class="detail-stat"><strong>${formatNumber(votes)}</strong><span>Votes</span></div><div class="detail-stat"><strong>${popularity ? popularity.toFixed(1) : '—'}</strong><span>Popularity</span></div><div class="detail-stat"><strong>${escapeHtml(dateOf(item.first_air_date))}</strong><span>First air date</span></div></div>
+            <p class="detail-overview">${escapeHtml(item.overview || 'No overview is available in the current catalogue for this title.')}</p>
+            <div class="modal-actions"><a class="btn btn-primary" href="${escapeHtml(safeTmdbUrl(item))}" target="_blank" rel="noopener noreferrer">Open on TMDB ↗</a><button type="button" class="btn btn-ghost" id="modalBackToCatalogue">Back to catalogue</button></div>
+          </div>
+        </div>`;
+        const modal = el('detailModal');
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden','false');
+        document.body.style.overflow = 'hidden';
+        el('modalClose').focus();
+        el('modalBackToCatalogue').addEventListener('click', closeDetails);
+      }
+      function closeDetails() {
+        const modal = el('detailModal');
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden','true');
+        document.body.style.overflow = '';
+        if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+      }
 
-            const onAirList = seriesData.map((item, idx) => ({item, idx})).filter(x => x.item.Status === 'Confirmed');
-            document.getElementById('onair-grid').innerHTML = onAirList.map(x => renderCard(x.item, x.idx)).join('');
+      function setView(view) {
+        currentView = view;
+        currentPage = 1;
+        document.querySelectorAll('[data-view]').forEach(button => button.classList.toggle('active', button.dataset.view === view));
+        renderCatalogue();
+      }
+      function resetFilters() {
+        el('searchInput').value = '';
+        el('mobileSearchInput').value = '';
+        el('genreFilter').value = 'all';
+        el('yearFilter').value = 'all';
+        el('sortSelect').value = 'newest';
+        setView('all');
+      }
+      function syncSearch(value, source) {
+        const other = source === 'desktop' ? el('mobileSearchInput') : el('searchInput');
+        if (other.value !== value) other.value = value;
+        currentPage = 1;
+        renderCatalogue();
+      }
 
-            const upcomingList = seriesData.map((item, idx) => ({item, idx})).filter(x => x.item.Status === 'Upcoming');
-            document.getElementById('upcoming-grid').innerHTML = upcomingList.map(x => renderCard(x.item, x.idx)).join('');
-
-            renderDirectory();
-            lucide.createIcons();
+      el('searchInput').addEventListener('input', event => syncSearch(event.target.value, 'desktop'));
+      el('mobileSearchInput').addEventListener('input', event => syncSearch(event.target.value, 'mobile'));
+      ['genreFilter','yearFilter','sortSelect'].forEach(id => el(id).addEventListener('change', () => { currentPage=1; renderCatalogue(); }));
+      document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view)));
+      el('allGenresLink').addEventListener('click', () => { resetFilters(); el('catalogue').scrollIntoView({behavior:'smooth'}); });
+      el('resetFilters').addEventListener('click', resetFilters);
+      el('retryLoad').addEventListener('click', loadCatalogue);
+      el('genreGrid').addEventListener('click', event => {
+        const button = event.target.closest('[data-genre]');
+        if (!button) return;
+        el('genreFilter').value = String(button.dataset.genre);
+        currentPage = 1; setView('all');
+        el('catalogue').scrollIntoView({behavior:'smooth'});
+      });
+      el('seriesGrid').addEventListener('click', event => {
+        const opener = event.target.closest('[data-open-id]');
+        if (opener) openDetails(detailItem(opener.dataset.openId));
+        if (event.target.id === 'emptyReset') resetFilters();
+      });
+      el('seriesGrid').addEventListener('keydown', event => {
+        if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.series-card')) {
+          event.preventDefault(); openDetails(detailItem(event.target.dataset.openId));
         }
-
-        function renderDirectory() {
-            const statusFilter = document.getElementById('statusFilter').value;
-            let list = seriesData.map((item, idx) => ({item, idx}));
-            if (statusFilter !== 'ALL') {
-                list = list.filter(x => x.item.Status === statusFilter);
-            }
-            document.getElementById('directory-grid').innerHTML = list.map(x => renderCard(x.item, x.idx)).join('');
-            lucide.createIcons();
-        }
-
-        function filterByGenre(genre) {
-            switchTab('directory');
-            document.getElementById('statusFilter').value = 'ALL';
-            const filtered = seriesData.map((item, idx) => ({item, idx})).filter(x => x.item.Genre.toLowerCase().includes(genre.toLowerCase()));
-            document.getElementById('directory-grid').innerHTML = filtered.map(x => renderCard(x.item, x.idx)).join('');
-            lucide.createIcons();
-        }
-
-        function filterDirectory() {
-            renderDirectory();
-        }
-
-        function handleSearch(query) {
-            if (!query.trim()) {
-                renderAll();
-                return;
-            }
-            const q = query.toLowerCase();
-            const matched = seriesData.map((item, idx) => ({item, idx})).filter(x => 
-                x.item['Series Title'].toLowerCase().includes(q) || 
-                x.item['Alternative Title'].toLowerCase().includes(q) || 
-                x.item['Genre'].toLowerCase().includes(q) || 
-                x.item['Channel / Platform'].toLowerCase().includes(q)
-            );
-            switchTab('directory');
-            document.getElementById('statusFilter').value = 'ALL';
-            document.getElementById('directory-grid').innerHTML = matched.length ? matched.map(x => renderCard(x.item, x.idx)).join('') : `<p class="text-slate-400 col-span-full text-center py-12">No series found matching "${query}".</p>`;
-            lucide.createIcons();
-        }
-
-        renderAll();
-    </script>
+      });
+      el('pagination').addEventListener('click', event => {
+        const button = event.target.closest('[data-page]');
+        if (!button || button.disabled) return;
+        currentPage = Number(button.dataset.page) || 1;
+        renderCatalogue();
+        el('catalogue').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+      el('modalClose').addEventListener('click', closeDetails);
+      el('detailModal').addEventListener('click', event => { if (event.target === el('detailModal')) closeDetails(); });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && el('detailModal').classList.contains('open')) closeDetails();
+      });
+      el('heroTitle').addEventListener('click', () => {
+        const id = el('heroTitle').dataset.featuredId;
+        if (id) openDetails(detailItem(id));
+      });
+      loadCatalogue();
+    })();
+  </script>
 </body>
 </html>
